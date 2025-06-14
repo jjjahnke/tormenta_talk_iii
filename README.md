@@ -2,10 +2,6 @@
 
 A cross-platform application that converts newspaper articles to audio files and imports them into iTunes playlists for hands-free listening.
 
-# TT3 - News Audio Converter
-
-A cross-platform application that converts newspaper articles to audio files and imports them into iTunes playlists for hands-free listening.
-
 ## 📊 Current Status
 
 **🔥 Active Development** - Core functionality 67% complete
@@ -103,10 +99,6 @@ This project follows an agentic development approach with:
 ## Future Vision
 
 The system is designed to evolve into a web application with browser plugin integration for URL-based article collection, while maintaining the core local processing engine.
-
----
-
-*Part of the Tormenta ecosystem - Building tools for efficient information consumption*
 
 ---
 
