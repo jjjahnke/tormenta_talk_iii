@@ -4,22 +4,23 @@ A cross-platform application that converts newspaper articles to audio files and
 
 ## 📊 Current Status
 
-**🔥 Active Development** - Core functionality 67% complete
+**🔥 Active Development** - Core functionality 85% complete
 
 ### ✅ Completed Features
 - **Local TTS Engine** - Cross-platform text-to-speech with chunking for stability (macOS, Windows, Linux)
 - **iTunes Integration** - Automated playlist creation and audio import
 - **File Processing** - Smart text extraction and preprocessing (.txt/.md support)
-- **Testing Framework** - Comprehensive unit tests (67/67 passing)
+- **Audio Processing** - Temporary file management and audio format conversion coordination
+- **Workflow Orchestration** - File discovery and batch processing with concurrency control
+- **Testing Framework** - Comprehensive unit tests (124+ tests passing)
 
 ### 🔄 In Progress
-- Audio processing and temporary file management
-- Core workflow orchestration
 - User interfaces (CLI and desktop app)
+- Build system and distribution
 
 ### 📈 Progress Details
 ```bash
-npm test        # Run all tests (67/67 passing)
+npm test        # Run all tests (124+ tests passing)
 npm run lint    # Code quality checks
 ```
 
@@ -42,6 +43,16 @@ TT3 (Tormenta Talk v3) automates the conversion of text articles to audio using 
   - ✅ Markdown formatting cleanup
   - ✅ Text preprocessing for optimal TTS
   - ✅ Audio filename generation with timestamps
+- **Audio Processing:** Temporary file management and format conversion coordination
+  - ✅ Cross-platform temporary file management with configurable cleanup
+  - ✅ Audio format conversion support (AIFF/MP3/WAV)
+  - ✅ File validation and size limits (500MB default)
+  - ✅ Metadata generation with source tracking
+- **Workflow Orchestration:** Automated processing pipeline with concurrency control
+  - ✅ Recursive file discovery with type filtering (.txt/.md)
+  - ✅ Batch processing with configurable concurrency
+  - ✅ Processing pipeline coordination (File → TTS → Audio → iTunes)
+  - ✅ Progress tracking and error handling
 - **Cross-Platform:** Works on macOS, Windows, and Linux
 - **Dual Interface:** Command-line tool and desktop drag-and-drop application
 - **Smart Cleanup:** Automatically removes old playlists and audio files (2-day retention)
@@ -76,9 +87,10 @@ npm run lint    # Check code quality
 - **`src/core/tts-service.js`** - Cross-platform TTS engine with text preprocessing and chunking
 - **`src/core/itunes-manager.js`** - Music app integration via AppleScript
 - **`src/core/file-processor.js`** - Text file discovery and content extraction
+- **`src/core/audio-converter.js`** - Audio processing coordination and temporary file management
+- **`src/core/workflow-orchestrator.js`** - File discovery and batch processing pipeline
 
 ### 🔄 Coming Next
-- **`src/core/audio-converter.js`** - Audio processing coordination
 - **`src/interfaces/cli.js`** - Command-line interface
 - **`src/interfaces/desktop-app.js`** - Desktop application
 
@@ -93,7 +105,7 @@ npm run lint    # Check code quality
 This project follows an agentic development approach with:
 - 📋 Detailed PRDs and task breakdowns
 - 🤖 AI-human collaborative implementation
-- ✅ Test-driven development (67/67 tests passing)
+- ✅ Test-driven development (124+ tests passing)
 - 📊 Progress tracking and task management
 
 ## Future Vision

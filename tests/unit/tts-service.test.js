@@ -223,15 +223,15 @@ describe('LocalTTSService Integration', () => {
     test('should chunk long text at sentence boundaries', () => {
       const longText = 'This is sentence one. This is sentence two. This is sentence three. This is sentence four. This is sentence five.'
       const chunks = ttsService._chunkText(longText, 15) // 15 words max per chunk
-      
+
       expect(chunks.length).toBeGreaterThan(1)
-      
+
       // Verify each chunk respects word limit
       chunks.forEach(chunk => {
         const wordCount = chunk.split(/\s+/).length
         expect(wordCount).toBeLessThanOrEqual(15)
       })
-      
+
       // Verify all text is preserved
       const rejoined = chunks.join(' ')
       expect(rejoined.replace(/\s+/g, ' ')).toBe(longText.replace(/\s+/g, ' '))
@@ -240,7 +240,7 @@ describe('LocalTTSService Integration', () => {
     test('should not chunk short text', () => {
       const shortText = 'This is a short sentence.'
       const chunks = ttsService._chunkText(shortText, 50)
-      
+
       expect(chunks.length).toBe(1)
       expect(chunks[0]).toBe(shortText)
     })
@@ -248,7 +248,7 @@ describe('LocalTTSService Integration', () => {
     test('should handle text with no sentence endings', () => {
       const noEndingText = 'Word1 Word2 Word3 Word4 Word5 Word6 Word7 Word8 Word9 Word10'
       const chunks = ttsService._chunkText(noEndingText, 5)
-      
+
       expect(chunks.length).toBe(1) // Should not split without sentence boundaries
       expect(chunks[0]).toBe(noEndingText)
     })
@@ -259,24 +259,24 @@ describe('LocalTTSService Integration', () => {
       }
 
       await ttsService.initialize()
-      
+
       // Create long text that exceeds chunk size
       const longText = Array(600).fill('This is a test sentence.').join(' ')
       const outputPath = path.join(testTempDir, 'chunked-test.aiff')
-      
+
       const result = await ttsService.convertTextToAudio(longText, outputPath, {
         enableChunking: true,
         maxChunkWords: 100
       })
-      
+
       expect(result.success).toBe(true)
       expect(result.method).toBe('chunked')
       expect(result.chunks).toBeGreaterThan(1)
-      
+
       // Verify output file exists and has content
       const audioFileExists = await fs.pathExists(outputPath)
       expect(audioFileExists).toBe(true)
-      
+
       const stats = await fs.stat(outputPath)
       expect(stats.size).toBeGreaterThan(0)
     }, 30000) // Allow 30 seconds for chunked processing
@@ -287,14 +287,14 @@ describe('LocalTTSService Integration', () => {
       }
 
       await ttsService.initialize()
-      
+
       const shortText = 'This is a short test sentence for single processing.'
       const outputPath = path.join(testTempDir, 'single-test.aiff')
-      
+
       const result = await ttsService.convertTextToAudio(shortText, outputPath, {
         enableChunking: false
       })
-      
+
       expect(result.success).toBe(true)
       expect(result.method).toBe('single')
       expect(result.chunks).toBeUndefined()

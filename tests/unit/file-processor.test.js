@@ -31,12 +31,12 @@ describe('FileProcessor', () => {
       await fs.writeFile(path.join(tempTestDir, 'image.jpg'), 'Not a text file')
 
       const result = await fileProcessor.processDirectory(tempTestDir)
-      
+
       expect(result.files).toHaveLength(3) // 2 txt + 1 md
       expect(result.summary.totalFound).toBe(3)
       expect(result.summary.successfullyProcessed).toBe(3)
       expect(result.errors).toHaveLength(0)
-      
+
       const filenames = result.files.map(f => f.filename)
       expect(filenames).toContain('article1.txt')
       expect(filenames).toContain('article2.txt')
@@ -50,7 +50,7 @@ describe('FileProcessor', () => {
       await fs.writeFile(path.join(subDir, 'nested.txt'), 'Nested content')
 
       const result = await fileProcessor.processDirectory(tempTestDir)
-      
+
       expect(result.files).toHaveLength(2)
       expect(result.summary.totalFound).toBe(2)
       const filenames = result.files.map(f => f.filename)
@@ -78,7 +78,7 @@ describe('FileProcessor', () => {
       await fs.writeFile(testFile, testContent)
 
       const result = await fileProcessor.processSingleFile(testFile)
-      
+
       expect(result.rawContent).toBe(testContent)
       expect(result.cleanedText).toBe(testContent)
       expect(result.filename).toBe('test.txt')
@@ -92,7 +92,7 @@ describe('FileProcessor', () => {
       await fs.writeFile(testFile, testContent)
 
       const result = await fileProcessor.processSingleFile(testFile)
-      
+
       expect(result.rawContent).toBe(testContent)
       expect(result.cleanedText).not.toContain('#')
       expect(result.cleanedText).not.toContain('**')
@@ -141,7 +141,7 @@ describe('FileProcessor', () => {
       const processor = new FileProcessor()
       const markdownText = '# Header\n\n**Bold text** and *italic text*\n\n- List item 1\n- List item 2'
       const cleanedText = processor._preprocessText(markdownText)
-      
+
       expect(cleanedText).not.toContain('#')
       expect(cleanedText).not.toContain('**')
       expect(cleanedText).not.toContain('*')
@@ -154,7 +154,7 @@ describe('FileProcessor', () => {
       const processor = new FileProcessor()
       const textWithQuotes = 'He said "Hello" and "Goodbye" with "smart quotes".'
       const cleanedText = processor._preprocessText(textWithQuotes)
-      
+
       expect(cleanedText).toContain('"Hello"')
       expect(cleanedText).toContain('"Goodbye"')
       expect(cleanedText).toContain('"smart quotes"')
@@ -171,7 +171,7 @@ describe('FileProcessor', () => {
       const processor = new FileProcessor()
       const textWithBreaks = 'First line.\n\n\nSecond line.\n\n\n\nThird line.'
       const cleanedText = processor._preprocessText(textWithBreaks)
-      
+
       expect(cleanedText).toBe('First line. Second line. Third line.')
       expect(cleanedText).not.toContain('\n')
     })
@@ -180,7 +180,7 @@ describe('FileProcessor', () => {
       const processor = new FileProcessor()
       const textWithoutEnding = 'This sentence has no ending'
       const cleanedText = processor._preprocessText(textWithoutEnding)
-      
+
       expect(cleanedText).toBe('This sentence has no ending.')
       expect(cleanedText.endsWith('.')).toBe(true)
     })
@@ -190,7 +190,7 @@ describe('FileProcessor', () => {
     test('should generate timestamped filename from file path', () => {
       const filePath = '/path/to/article-title.txt'
       const audioFilename = fileProcessor.generateAudioFilename(filePath)
-      
+
       expect(audioFilename).toMatch(/^\d{4}-\d{2}-\d{2}-article-title\.aiff$/)
       expect(audioFilename).toMatch(/\.aiff$/)
     })
@@ -198,7 +198,7 @@ describe('FileProcessor', () => {
     test('should handle special characters in filename', () => {
       const filePath = '/path/to/article with spaces & symbols!.txt'
       const audioFilename = fileProcessor.generateAudioFilename(filePath)
-      
+
       expect(audioFilename).toMatch(/^\d{4}-\d{2}-\d{2}-article-with-spaces-symbols\.aiff$/)
       expect(audioFilename).not.toContain(' ')
       expect(audioFilename).not.toContain('&')
@@ -214,14 +214,14 @@ describe('FileProcessor', () => {
     test('should handle Windows-style paths', () => {
       const filePath = 'C:\\Users\\Documents\\news-article.txt'
       const audioFilename = fileProcessor.generateAudioFilename(filePath)
-      
+
       expect(audioFilename).toMatch(/^\d{4}-\d{2}-\d{2}-news-article\.aiff$/)
     })
 
     test('should allow custom extension', () => {
       const filePath = '/path/to/article.txt'
       const audioFilename = fileProcessor.generateAudioFilename(filePath, '.mp3')
-      
+
       expect(audioFilename).toMatch(/^\d{4}-\d{2}-\d{2}-article\.mp3$/)
     })
   })
@@ -235,20 +235,20 @@ describe('FileProcessor', () => {
       await fs.writeFile(file2, '# Second Article\n\nThis is markdown content.')
 
       const result = await fileProcessor.processDirectory(tempTestDir)
-      
+
       expect(result.files).toHaveLength(2)
       expect(result.summary.totalFound).toBe(2)
       expect(result.summary.successfullyProcessed).toBe(2)
       expect(result.summary.errors).toBe(0)
-      
+
       const result1 = result.files.find(r => r.filename === 'article1.txt')
       const result2 = result.files.find(r => r.filename === 'article2.md')
-      
+
       expect(result1).toBeDefined()
       expect(result1.cleanedText).toContain('First article content')
       expect(result1.extension).toBe('.txt')
       expect(result1.originalPath).toMatch(/article1\.txt$/)
-      
+
       expect(result2).toBeDefined()
       expect(result2.cleanedText).toContain('Second Article')
       expect(result2.cleanedText).not.toContain('#')
@@ -272,7 +272,7 @@ describe('FileProcessor', () => {
 
       const result = await fileProcessor.processDirectory(tempTestDir)
       const file = result.files[0]
-      
+
       expect(file).toHaveProperty('originalPath')
       expect(file).toHaveProperty('filename')
       expect(file).toHaveProperty('dirname')
@@ -283,7 +283,7 @@ describe('FileProcessor', () => {
       expect(file).toHaveProperty('rawContent')
       expect(file).toHaveProperty('cleanedText')
       expect(file).toHaveProperty('success')
-      
+
       expect(file.size).toBeGreaterThan(0)
       expect(file.success).toBe(true)
     })
@@ -297,7 +297,7 @@ describe('FileProcessor', () => {
 
       const processed = await fileProcessor.processSingleFile(testFile)
       const validation = fileProcessor.validateContent(processed)
-      
+
       expect(validation.isValid).toBe(true)
       expect(validation.issues).toHaveLength(0)
     })
@@ -308,7 +308,7 @@ describe('FileProcessor', () => {
 
       const processed = await fileProcessor.processSingleFile(testFile)
       const validation = fileProcessor.validateContent(processed)
-      
+
       expect(validation.isValid).toBe(false)
       expect(validation.issues).toContain('Text content is too short (less than 10 characters)')
     })
@@ -318,7 +318,7 @@ describe('FileProcessor', () => {
         cleanedText: ''
       }
       const validation = fileProcessor.validateContent(emptyFile)
-      
+
       expect(validation.isValid).toBe(false)
       expect(validation.issues).toContain('No readable text content found')
     })
@@ -335,7 +335,7 @@ describe('FileProcessor', () => {
       // Create a file that will cause issues
       const testFile = path.join(tempTestDir, 'test.txt')
       await fs.writeFile(testFile, 'normal content')
-      
+
       // Create a very large file that exceeds limits
       const largeContent = 'x'.repeat(2 * 1024 * 1024) // 2MB, exceeds 1MB default limit
       const largeFile = path.join(tempTestDir, 'large.txt')
@@ -349,7 +349,7 @@ describe('FileProcessor', () => {
   describe('Statistics and Management', () => {
     test('should provide processing statistics', () => {
       const stats = fileProcessor.getStats()
-      
+
       expect(stats).toHaveProperty('supportedExtensions')
       expect(stats).toHaveProperty('maxFileSize')
       expect(stats.supportedExtensions).toContain('.txt')
@@ -360,9 +360,9 @@ describe('FileProcessor', () => {
     test('should allow resetting processor state', () => {
       fileProcessor.errors = ['test error']
       fileProcessor.processed = ['test processed']
-      
+
       fileProcessor.reset()
-      
+
       expect(fileProcessor.errors).toHaveLength(0)
       expect(fileProcessor.processed).toHaveLength(0)
     })
@@ -382,7 +382,7 @@ describe('FileProcessor', () => {
       const startTime = Date.now()
       const result = await fileProcessor.processDirectory(tempTestDir)
       const duration = Date.now() - startTime
-      
+
       expect(result.files).toHaveLength(numFiles)
       expect(result.summary.successfullyProcessed).toBe(numFiles)
       expect(duration).toBeLessThan(5000) // Should complete within 5 seconds

@@ -230,9 +230,15 @@ The News Audio Converter is a modular application system that converts newspaper
 ## 9. Technical Considerations
 
 ### Core Technologies
-- **Text-to-Speech:** Local TTS library (cross-platform Node.js solution like say.js, node-speaker, or similar) for offline operation and privacy
-- **iTunes Integration:** AppleScript or iTunes Library XML manipulation (modularized for remote access)
-- **File Processing:** Temporary directory management with cleanup, cross-platform file operations
+- **Text-to-Speech:** ✅ **IMPLEMENTED** - Local TTS library with chunking strategy for cross-platform operation
+  - macOS: `say` command with AIFF output and intelligent text chunking to prevent crashes
+  - Windows: SAPI with WAV output 
+  - Linux: espeak with WAV output
+  - Configurable chunk processing (default: 500 words, sentence-boundary splitting)
+  - Multiple audio concatenation methods (ffmpeg primary, binary AIFF concatenation fallback)
+  - Timeout protection and error recovery for reliable long-document processing
+- **iTunes Integration:** ✅ **IMPLEMENTED** - AppleScript automation for playlist creation and audio import
+- **File Processing:** ✅ **IMPLEMENTED** - Cross-platform file operations with content extraction and preprocessing
 - **Desktop Application:** Cross-platform framework (Electron or Tauri) for consistent deployment across platforms
 - **Drag-and-Drop:** Cross-platform drag-and-drop APIs for folder acceptance
 - **Modular Monolith Architecture:** Single deployable unit with clear internal module boundaries
@@ -257,11 +263,20 @@ The News Audio Converter is a modular application system that converts newspaper
 - **Data Privacy:** No external transmission of article content
 - **System Impact:** Minimal system modification beyond iTunes playlist management
 
+### TTS Stability and Long Document Processing ✅ **IMPLEMENTED**
+- **Chunking Strategy:** Text splitting at sentence boundaries to prevent TTS engine crashes on long articles
+- **Configurable Processing:** Adjustable chunk sizes (default: 500 words) based on system capabilities
+- **Audio Concatenation:** Multiple concatenation methods (ffmpeg primary, binary fallback) for seamless output
+- **Timeout Protection:** Individual chunk processing with configurable timeouts (default: 30 seconds)
+- **Error Recovery:** Graceful handling of chunk processing failures with detailed error reporting
+- **Cross-Platform Optimization:** Platform-specific optimizations for macOS `say`, Windows SAPI, and Linux espeak
+- **Quality Preservation:** Sentence-boundary chunking maintains natural speech flow in final audio output
+
 ## 10. Risk Assessment
 
 ### High Risk Items
-- **Local TTS Library Integration:** Cross-platform TTS library may have varying quality or platform compatibility issues
-  - *Mitigation:* Research and test multiple local TTS options (say.js, espeak, festival), implement library abstraction layer with fallbacks
+- **Local TTS Library Integration:** ✅ **MITIGATED** - Cross-platform TTS library integration completed with chunking strategy
+  - *Solution Implemented:* LocalTTSService with platform-specific engines (macOS say, Windows SAPI, Linux espeak), intelligent text chunking at sentence boundaries, configurable chunk sizes, timeout protection, and multiple audio concatenation methods
 - **Cross-Platform iTunes Integration:** iTunes behavior may vary significantly across platforms
   - *Mitigation:* Implement platform-specific iTunes integration strategies with comprehensive testing
 - **File Format Variations:** Different article sources may have incompatible text formats
