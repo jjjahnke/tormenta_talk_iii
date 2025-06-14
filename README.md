@@ -7,10 +7,10 @@ A cross-platform application that converts newspaper articles to audio files and
 **🔥 Active Development** - Core functionality 67% complete
 
 ### ✅ Completed Features
-- **Local TTS Engine** - Cross-platform text-to-speech (macOS, Windows, Linux)
+- **Local TTS Engine** - Cross-platform text-to-speech with chunking for stability (macOS, Windows, Linux)
 - **iTunes Integration** - Automated playlist creation and audio import
 - **File Processing** - Smart text extraction and preprocessing (.txt/.md support)
-- **Testing Framework** - Comprehensive unit tests (62/62 passing)
+- **Testing Framework** - Comprehensive unit tests (67/67 passing)
 
 ### 🔄 In Progress
 - Audio processing and temporary file management
@@ -19,7 +19,7 @@ A cross-platform application that converts newspaper articles to audio files and
 
 ### 📈 Progress Details
 ```bash
-npm test        # Run all tests (62/62 passing)
+npm test        # Run all tests (67/67 passing)
 npm run lint    # Code quality checks
 ```
 
@@ -29,8 +29,8 @@ TT3 (Tormenta Talk v3) automates the conversion of text articles to audio using 
 
 ## Key Features
 
-- **Local TTS Processing:** Privacy-focused offline text-to-speech conversion
-  - ✅ macOS (`say` command) - AIFF output
+- **Local TTS Processing:** Privacy-focused offline text-to-speech conversion with chunking for long documents
+  - ✅ macOS (`say` command) - AIFF output with text chunking to prevent crashes
   - ✅ Windows (SAPI) - WAV output  
   - ✅ Linux (espeak) - WAV output
 - **iTunes Integration:** Automatic playlist creation with "News-YYYY-MM-DD" naming
@@ -73,7 +73,7 @@ npm run lint    # Check code quality
 ## Core Components
 
 ### 🎯 Implemented Modules
-- **`src/core/tts-service.js`** - Cross-platform TTS engine with text preprocessing
+- **`src/core/tts-service.js`** - Cross-platform TTS engine with text preprocessing and chunking
 - **`src/core/itunes-manager.js`** - Music app integration via AppleScript
 - **`src/core/file-processor.js`** - Text file discovery and content extraction
 
@@ -93,7 +93,7 @@ npm run lint    # Check code quality
 This project follows an agentic development approach with:
 - 📋 Detailed PRDs and task breakdowns
 - 🤖 AI-human collaborative implementation
-- ✅ Test-driven development (62/62 tests passing)
+- ✅ Test-driven development (67/67 tests passing)
 - 📊 Progress tracking and task management
 
 ## Future Vision
