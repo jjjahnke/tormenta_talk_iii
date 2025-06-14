@@ -1,0 +1,106 @@
+{
+  "name": "tormenta-talk-iii",
+  "version": "0.1.0",
+  "description": "TT3 - Cross-platform news audio converter with local TTS and iTunes integration",
+  "main": "src/interfaces/cli.js",
+  "bin": {
+    "tt3": "src/interfaces/cli.js"
+  },
+  "scripts": {
+    "start": "node src/interfaces/cli.js",
+    "dev": "node --inspect src/interfaces/cli.js",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "lint": "eslint src/ tests/",
+    "lint:fix": "eslint src/ tests/ --fix",
+    "build": "npm run build:cli && npm run build:desktop",
+    "build:cli": "pkg src/interfaces/cli.js --output dist/tt3",
+    "build:desktop": "electron-builder",
+    "dev:desktop": "electron src/interfaces/desktop-app.js",
+    "package": "npm run build && npm run package:all",
+    "package:all": "npm run package:mac && npm run package:win && npm run package:linux",
+    "package:mac": "electron-builder --mac",
+    "package:win": "electron-builder --win",
+    "package:linux": "electron-builder --linux"
+  },
+  "keywords": [
+    "tts",
+    "text-to-speech",
+    "news",
+    "audio",
+    "converter",
+    "itunes",
+    "cross-platform",
+    "offline"
+  ],
+  "author": "jjjahnke",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jjjahnke/tormenta_talk_iii.git"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "dependencies": {
+    "commander": "^11.0.0",
+    "fs-extra": "^11.1.1",
+    "chalk": "^4.1.2",
+    "ora": "^5.4.1",
+    "node-notifier": "^10.0.1"
+  },
+  "devDependencies": {
+    "jest": "^29.6.2",
+    "eslint": "^8.45.0",
+    "eslint-config-standard": "^17.1.0",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^6.1.1",
+    "electron": "^25.3.1",
+    "electron-builder": "^24.6.3",
+    "pkg": "^5.8.1"
+  },
+  "build": {
+    "appId": "com.tormenta.tt3",
+    "productName": "TT3 News Audio Converter",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "src/**/*",
+      "assets/**/*",
+      "!src/**/*.test.js",
+      "!tests/"
+    ],
+    "mac": {
+      "category": "public.app-category.productivity",
+      "icon": "assets/icons/icon.icns"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "assets/icons/icon.ico"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "assets/icons/icon.png",
+      "category": "AudioVideo"
+    }
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "collectCoverageFrom": [
+      "src/**/*.js",
+      "!src/**/*.test.js"
+    ],
+    "coverageReporters": [
+      "text",
+      "lcov",
+      "html"
+    ],
+    "testMatch": [
+      "**/tests/**/*.test.js",
+      "**/src/**/*.test.js"
+    ]
+  }
+}
