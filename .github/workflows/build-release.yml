@@ -1,0 +1,203 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18, 20]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Run linter
+      run: npm run lint
+    
+    - name: Run tests
+      run: npm test
+
+  build:
+    needs: test
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        include:
+          - os: ubuntu-latest
+            platform: linux
+            arch: x64
+          - os: windows-latest
+            platform: win32
+            arch: x64
+          - os: macos-latest
+            platform: darwin
+            arch: x64
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Build CLI application
+      run: npm run build:cli
+    
+    - name: Build desktop application
+      run: npm run build:desktop
+    
+    - name: Package applications
+      run: npm run package:all
+    
+    - name: Create distribution artifacts
+      shell: bash
+      run: |
+        mkdir -p dist-artifacts
+        
+        # Package CLI binaries
+        if [ "${{ matrix.platform }}" = "win32" ]; then
+          if [ -f "dist/cli/tt3-cli-win.exe" ]; then
+            cp "dist/cli/tt3-cli-win.exe" "dist-artifacts/tt3-cli-${{ matrix.platform }}-${{ matrix.arch }}.exe"
+          fi
+        else
+          if [ -f "dist/cli/tt3-cli-${{ matrix.platform }}" ]; then
+            cp "dist/cli/tt3-cli-${{ matrix.platform }}" "dist-artifacts/tt3-cli-${{ matrix.platform }}-${{ matrix.arch }}"
+          fi
+        fi
+        
+        # Package desktop applications
+        if [ "${{ matrix.platform }}" = "win32" ]; then
+          if [ -d "dist/desktop/win-unpacked" ]; then
+            cd dist/desktop
+            zip -r "../../dist-artifacts/tt3-desktop-${{ matrix.platform }}-${{ matrix.arch }}.zip" win-unpacked/
+            cd ../..
+          fi
+          if [ -f "dist/desktop/TT3 Setup*.exe" ]; then
+            cp dist/desktop/TT3\ Setup*.exe "dist-artifacts/tt3-desktop-${{ matrix.platform }}-${{ matrix.arch }}-setup.exe"
+          fi
+        elif [ "${{ matrix.platform }}" = "darwin" ]; then
+          if [ -d "dist/desktop/mac" ]; then
+            cd dist/desktop
+            zip -r "../../dist-artifacts/tt3-desktop-${{ matrix.platform }}-${{ matrix.arch }}.zip" mac/
+            cd ../..
+          fi
+          if [ -f "dist/desktop/TT3"*.dmg ]; then
+            cp dist/desktop/TT3*.dmg "dist-artifacts/tt3-desktop-${{ matrix.platform }}-${{ matrix.arch }}.dmg"
+          fi
+        else
+          if [ -d "dist/desktop/linux-unpacked" ]; then
+            cd dist/desktop
+            tar -czf "../../dist-artifacts/tt3-desktop-${{ matrix.platform }}-${{ matrix.arch }}.tar.gz" linux-unpacked/
+            cd ../..
+          fi
+          if [ -f "dist/desktop/TT3"*.AppImage ]; then
+            cp dist/desktop/TT3*.AppImage "dist-artifacts/tt3-desktop-${{ matrix.platform }}-${{ matrix.arch }}.AppImage"
+          fi
+        fi
+        
+        # List what we created
+        ls -la dist-artifacts/ || true
+    
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: tt3-${{ matrix.platform }}-${{ matrix.arch }}
+        path: dist-artifacts/*
+        retention-days: 30
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: release-artifacts
+    
+    - name: Prepare release assets
+      run: |
+        mkdir -p release-assets
+        find release-artifacts -type f -exec cp {} release-assets/ \;
+        ls -la release-assets/
+    
+    - name: Extract release notes
+      id: release_notes
+      run: |
+        if [ -f "CHANGELOG.md" ]; then
+          # Extract notes for current version from CHANGELOG.md
+          VERSION=${GITHUB_REF#refs/tags/}
+          awk "/^## \[?${VERSION#v}\]?/,/^## \[?[0-9]/ { if (/^## \[?[0-9]/ && !/^## \[?${VERSION#v}\]?/) exit; print }" CHANGELOG.md | head -n -1 > release_notes.txt
+        else
+          echo "Release ${{ github.ref_name }}" > release_notes.txt
+          echo "" >> release_notes.txt
+          echo "Automated release with cross-platform binaries." >> release_notes.txt
+          echo "" >> release_notes.txt
+          echo "### Downloads:" >> release_notes.txt
+          echo "- **CLI Tools**: Download the appropriate tt3-cli binary for your platform" >> release_notes.txt
+          echo "- **Desktop App**: Download the installer/package for your platform" >> release_notes.txt
+          echo "" >> release_notes.txt
+          echo "### Platform Support:" >> release_notes.txt
+          echo "- Windows: .exe installer and portable .zip" >> release_notes.txt
+          echo "- macOS: .dmg installer and .zip archive" >> release_notes.txt
+          echo "- Linux: .AppImage and .tar.gz archive" >> release_notes.txt
+        fi
+    
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: release-assets/*
+        body_path: release_notes.txt
+        draft: false
+        prerelease: false
+        name: Release ${{ github.ref_name }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  notify:
+    needs: [test, build, release]
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+    - name: Workflow Summary
+      run: |
+        echo "## Workflow Results" >> $GITHUB_STEP_SUMMARY
+        echo "- Tests: ${{ needs.test.result }}" >> $GITHUB_STEP_SUMMARY
+        echo "- Build: ${{ needs.build.result }}" >> $GITHUB_STEP_SUMMARY
+        if [ "${{ needs.release.result }}" != "skipped" ]; then
+          echo "- Release: ${{ needs.release.result }}" >> $GITHUB_STEP_SUMMARY
+        fi
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### Available Platforms:" >> $GITHUB_STEP_SUMMARY
+        echo "- Windows (CLI + Desktop)" >> $GITHUB_STEP_SUMMARY
+        echo "- macOS (CLI + Desktop)" >> $GITHUB_STEP_SUMMARY
+        echo "- Linux (CLI + Desktop)" >> $GITHUB_STEP_SUMMARY

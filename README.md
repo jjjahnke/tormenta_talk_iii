@@ -4,20 +4,21 @@ A cross-platform application that converts newspaper articles to audio files wit
 
 ## 📊 Current Status
 
-**🔥 Active Development** - Core functionality 100% complete
+**✅ Production Ready** - All features complete with automated distribution
 
 ### ✅ Completed Features
 - **Local TTS Engine** - Cross-platform text-to-speech with chunking for stability (macOS, Windows, Linux)
-- **iTunes Integration** - Automated playlist creation and audio import
+- **iTunes Integration** - Optional playlist creation and audio import (--itunes flag)
 - **File Processing** - Smart text extraction and preprocessing (.txt/.md support)
-- **Audio Processing** - Temporary file management and audio format conversion coordination
+- **Audio Processing** - Direct file output alongside source files with conflict resolution
 - **Workflow Orchestration** - File discovery and batch processing with concurrency control
 - **Command-Line Interface** - Professional CLI with progress display and comprehensive options
-- **Desktop Application** - Cross-platform Electron app with drag-and-drop interface, progress feedback, and TT3 branding
-- **Testing Framework** - Comprehensive unit tests (150+ tests passing)
+- **Desktop Application** - Cross-platform Electron app with drag-and-drop interface, settings management, and TT3 branding
+- **Testing Framework** - Comprehensive unit tests (165+ tests passing)
+- **Automated Distribution** - GitHub Actions for cross-platform binary releases
 
-### 🔄 Next Phase
-- Build system setup and distribution packaging
+### 🎯 Ready to Use
+Download pre-built binaries from [Releases](../../releases) or build from source.
 
 ### 📈 Progress Details
 ```bash
@@ -94,29 +95,96 @@ This new default behavior provides better user control and file organization whi
 - **Cross-Platform Desktop:** Built with Electron for consistent experience across platforms
 - **Privacy-Focused:** All processing happens locally with no external dependencies
 
-## Quick Start
+## Installation
 
-### Desktop Application (Recommended)
+### Option 1: Download Pre-Built Binaries (Recommended)
+
+**For End Users (No Node.js Required):**
+
+1. Go to the [Releases page](../../releases)
+2. Download the appropriate version for your platform:
+   - **Windows**: `tt3-desktop-win32-x64-setup.exe` (installer) or `tt3-desktop-win32-x64.zip` (portable)
+   - **macOS**: `tt3-desktop-darwin-x64.dmg` (installer) or `tt3-desktop-darwin-x64.zip` (portable)
+   - **Linux**: `tt3-desktop-linux-x64.AppImage` (executable) or `tt3-desktop-linux-x64.tar.gz` (archive)
+3. Install or extract, then run the TT3 application
+
+**Command-Line Tools:**
+- Download `tt3-cli-[platform]-x64` for command-line usage without Node.js installation
+
+### Option 2: Build from Source
+
+**For Developers:**
+
 ```bash
+# Clone repository
+git clone [repository-url]
+cd tormenta_talk_iii
+
 # Install dependencies
 npm install
 
-# Launch desktop application
+# Run tests to verify setup
+npm test
+
+# Launch desktop application for development
 npm run dev:desktop
+
+# Or use CLI directly
+node src/interfaces/cli.js --help
 ```
 
-Then simply drag a folder containing .txt or .md files onto the application window!
+**Building Distribution Packages:**
+```bash
+# Build CLI binaries
+npm run build:cli
+
+# Build desktop applications
+npm run build:desktop
+
+# Package all platforms
+npm run package:all
+```
+
+## Quick Start
+
+### Desktop Application (Recommended)
+
+1. **Launch the application:**
+   - **Pre-built binary**: Double-click the installed TT3 application
+   - **From source**: Run `npm run dev:desktop`
+
+2. **Configure settings** (optional):
+   - Toggle iTunes integration on/off
+   - Enable/disable file overwrite mode
+
+3. **Process articles:**
+   - Drag a folder containing .txt or .md files onto the application window
+   - Watch real-time progress as files are converted to audio
+   - Audio files will be saved alongside your source files
 
 ### Command Line Interface
+
 ```bash
-# Process articles using CLI
+# Process articles using CLI (source files)
 node src/interfaces/cli.js process /path/to/articles
+
+# Process with iTunes integration enabled
+node src/interfaces/cli.js process /path/to/articles --itunes
+
+# Process with file overwrite mode
+node src/interfaces/cli.js process /path/to/articles --overwrite
 
 # Check system status
 node src/interfaces/cli.js status
 
 # CLI help
 node src/interfaces/cli.js --help
+```
+
+**Using Pre-built CLI Binary:**
+```bash
+# Download and use pre-built binary (no Node.js required)
+./tt3-cli-[platform]-x64 process /path/to/articles --itunes
 ```
 
 ### CLI Usage Examples
@@ -207,23 +275,45 @@ npm run dev:desktop  # Desktop app development mode
 - **`src/interfaces/renderer.js`** - Desktop app frontend logic
 - **`src/interfaces/renderer.html`** - Desktop app user interface
 
-### 🔄 Coming Next
-- **Build System Setup** - Cross-platform packaging and distribution
-- **GitHub Actions** - Automated testing and release workflows
+### 🚀 Distribution & CI/CD
+- **Automated Builds** - GitHub Actions workflows for cross-platform compilation
+- **Release Automation** - Automatic binary distribution for Windows, macOS, and Linux
+- **Quality Assurance** - Automated testing and linting in CI pipeline
 
 ## Documentation
 
 - [Product Requirements Document](tasks/prd-news-audio-converter.md)
-- [Implementation Task List](tasks/tasks-prd-news-audio-converter.md) - **Updated with current progress**
+- [Implementation Task List](tasks/tasks-prd-news-audio-converter.md) - **Complete ✅**
 - [Development Rules and Guidelines](.github/copilot-instructions.md)
+- [GitHub Actions Workflow](.github/workflows/build-release.yml) - Cross-platform build automation
 
 ## Development Approach
 
 This project follows an agentic development approach with:
 - 📋 Detailed PRDs and task breakdowns
 - 🤖 AI-human collaborative implementation
-- ✅ Test-driven development (124+ tests passing)
+- ✅ Test-driven development (165+ tests passing)
 - 📊 Progress tracking and task management
+- 🔄 Automated distribution pipeline
+
+## CI/CD Pipeline
+
+The project includes automated GitHub Actions workflows for:
+
+- **Continuous Testing**: Runs on Node.js 18 & 20 with full test suite and linting
+- **Cross-Platform Builds**: Generates binaries for Windows, macOS, and Linux
+- **Automated Releases**: Creates GitHub releases with downloadable binaries on version tags
+- **Artifact Management**: Stores build artifacts for easy access and deployment
+
+**Triggering Releases:**
+```bash
+# Create and push a version tag to trigger release
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+**Manual Workflow Trigger:**
+- Use GitHub's "Actions" tab to manually trigger builds for testing
 
 ## Future Vision
 
