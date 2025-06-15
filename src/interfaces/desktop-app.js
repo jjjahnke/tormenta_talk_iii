@@ -387,7 +387,7 @@ class TT3DesktopApp {
     try {
       const { app } = require('electron')
       const settingsPath = path.join(app.getPath('userData'), 'tt3-settings.json')
-      
+
       if (fs.existsSync(settingsPath)) {
         const savedSettings = fs.readJsonSync(settingsPath)
         this.settings = { ...this.settings, ...savedSettings }
@@ -402,10 +402,10 @@ class TT3DesktopApp {
     try {
       const { app } = require('electron')
       const settingsPath = path.join(app.getPath('userData'), 'tt3-settings.json')
-      
+
       this.settings = { ...this.settings, ...newSettings }
       await fs.writeJson(settingsPath, this.settings, { spaces: 2 })
-      
+
       return { success: true }
     } catch (error) {
       console.error('Failed to save settings:', error.message)

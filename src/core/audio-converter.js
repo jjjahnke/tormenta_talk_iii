@@ -227,25 +227,25 @@ class AudioConverter {
     const basename = path.basename(sourceFilename, path.extname(sourceFilename))
     const format = options.outputFormat || 'mp3'
     const extension = format.startsWith('.') ? format : `.${format}`
-    
+
     let audioPath = path.join(sourceDir, `${basename}${extension}`)
-    
+
     // Handle filename conflicts with sequential numbering (unless overwrite is enabled)
     if (!options.overwrite && await fs.pathExists(audioPath)) {
       let counter = 1
       let candidatePath
-      
+
       do {
         candidatePath = path.join(sourceDir, `${basename}-${counter}${extension}`)
         counter++
       } while (await fs.pathExists(candidatePath))
-      
+
       audioPath = candidatePath
     }
-    
+
     // Ensure output directory exists
     await fs.ensureDir(path.dirname(audioPath))
-    
+
     return audioPath
   }
 

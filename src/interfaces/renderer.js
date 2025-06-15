@@ -413,11 +413,11 @@ class TT3Renderer {
     try {
       // Load current settings from main process
       const settings = await window.electronAPI.getSettings()
-      
+
       // Update UI with current settings
       this.elements.itunesEnabled.checked = settings.enableItunesIntegration
       this.elements.overwriteEnabled.checked = settings.overwriteExisting
-      
+
       // Show settings overlay
       this.elements.settingsOverlay.style.display = 'flex'
     } catch (error) {
@@ -436,17 +436,17 @@ class TT3Renderer {
         enableItunesIntegration: this.elements.itunesEnabled.checked,
         overwriteExisting: this.elements.overwriteEnabled.checked
       }
-      
+
       // Save to main process
       await window.electronAPI.saveSettings(settings)
-      
+
       // Close settings modal
       this.closeSettings()
-      
+
       console.log('Settings saved successfully:', settings)
     } catch (error) {
       console.error('Error saving settings:', error)
-      alert('Failed to save settings. Please try again.')
+      this.showError('Settings Error', 'Failed to save settings. Please try again.')
     }
   }
 

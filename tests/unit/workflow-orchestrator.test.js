@@ -315,7 +315,7 @@ describe('WorkflowOrchestrator', () => {
     test('should process single file successfully with iTunes integration', async () => {
       // Reset mocks to ensure clean state
       jest.clearAllMocks()
-      
+
       const itunesOrchestrator = new WorkflowOrchestrator({ enableItunesIntegration: true })
       await itunesOrchestrator.initialize()
 

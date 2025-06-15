@@ -1,6 +1,6 @@
 # TT3 - News Audio Converter
 
-A cross-platform application that converts newspaper articles to audio files and imports them into iTunes playlists for hands-free listening.
+A cross-platform application that converts newspaper articles to audio files with optional iTunes integration for hands-free listening.
 
 ## 📊 Current Status
 
@@ -29,7 +29,7 @@ npm run dev:desktop  # Launch desktop application
 
 ## Overview
 
-TT3 (Tormenta Talk v3) automates the conversion of text articles to audio using local text-to-speech libraries, creating dated iTunes playlists for seamless iPhone synchronization. The system supports both command-line and desktop drag-and-drop interfaces.
+TT3 (Tormenta Talk v3) automates the conversion of text articles to audio using local text-to-speech libraries. Audio files are saved alongside your source files by default, with optional iTunes playlist creation for seamless iPhone synchronization. The system supports both command-line and desktop drag-and-drop interfaces.
 
 ## Key Features
 
@@ -37,15 +37,18 @@ TT3 (Tormenta Talk v3) automates the conversion of text articles to audio using 
   - ✅ macOS (`say` command) - AIFF output with text chunking to prevent crashes
   - ✅ Windows (SAPI) - WAV output  
   - ✅ Linux (espeak) - WAV output
-- **iTunes Integration:** Automatic playlist creation with "News-YYYY-MM-DD" naming
+- **iTunes Integration:** Optional playlist creation with "News-YYYY-MM-DD" naming
   - ✅ AppleScript automation for Music app
-  - ✅ Playlist creation/cleanup (2-day retention)
+  - ✅ Playlist creation/cleanup (2-day retention)  
   - ✅ Audio file import with metadata
-- **File Processing:** Smart content extraction and preprocessing
+  - ✅ Enable via --itunes CLI flag or desktop UI toggle
+- **File Processing:** Smart content extraction and direct audio file output
   - ✅ Recursive directory scanning (.txt/.md files)
   - ✅ Markdown formatting cleanup
   - ✅ Text preprocessing for optimal TTS
-  - ✅ Audio filename generation with timestamps
+  - ✅ Audio files saved alongside source files (same directory, same basename)
+  - ✅ Automatic filename conflict resolution with sequential numbering
+  - ✅ Optional overwrite mode via --overwrite flag
 - **Audio Processing:** Temporary file management and format conversion coordination
   - ✅ Cross-platform temporary file management with configurable cleanup
   - ✅ Audio format conversion support (AIFF/MP3/WAV)
@@ -66,6 +69,22 @@ TT3 (Tormenta Talk v3) automates the conversion of text articles to audio using 
   - ✅ Cross-platform compatibility (macOS, Windows, Linux)
 - **Smart Cleanup:** Automatically removes old playlists and audio files (2-day retention)
 - **Progress Feedback:** Real-time processing status and error reporting
+
+## Default Behavior
+
+**Audio File Output:**
+- Audio files are saved **directly alongside your source files** (same directory, same basename)
+- Example: `article.txt` → `article.aiff` (same folder)
+- Automatic filename conflict resolution: `article-1.aiff`, `article-2.aiff`, etc.
+- Use `--overwrite` flag to replace existing files instead of creating numbered versions
+
+**iTunes Integration:**
+- iTunes playlist creation is **optional** (disabled by default)
+- Enable via `--itunes` CLI flag or desktop app settings toggle
+- When enabled, creates "News-YYYY-MM-DD" playlists in Music/iTunes app
+
+**Why This Change?**
+This new default behavior provides better user control and file organization while maintaining the option for iTunes workflow when desired.
 
 ## Architecture
 
@@ -103,11 +122,20 @@ node src/interfaces/cli.js --help
 ### CLI Usage Examples
 
 ```bash
-# Process a single file
+# Process a single file (saves audio alongside source file)
 node src/interfaces/cli.js process article.txt
 
 # Process all files in a directory
 node src/interfaces/cli.js process /path/to/articles
+
+# Enable iTunes playlist integration
+node src/interfaces/cli.js process /path/to/articles --itunes
+
+# Overwrite existing audio files instead of creating numbered versions
+node src/interfaces/cli.js process /path/to/articles --overwrite
+
+# Combine iTunes integration with overwrite mode
+node src/interfaces/cli.js process /path/to/articles --itunes --overwrite
 
 # Preview files without processing
 node src/interfaces/cli.js process /path/to/articles --dry-run
@@ -130,18 +158,20 @@ node src/interfaces/cli.js version
 
 ### Desktop Application Usage
 
-The desktop application provides an intuitive drag-and-drop interface:
+The desktop application provides an intuitive drag-and-drop interface with configurable settings:
 
 1. **Launch:** Run `npm run dev:desktop` to open the application
-2. **Select Files:** Either:
+2. **Configure Settings:** Toggle iTunes integration and overwrite mode in settings
+3. **Select Files:** Either:
    - Drag a folder containing articles onto the application window
    - Click "Select Folder" to browse for a directory
-3. **Process:** Click "Start Processing" to begin conversion
-4. **Monitor:** Watch real-time progress with file-by-file status updates
-5. **Complete:** Receive desktop notification when processing finishes
+4. **Process:** Click "Start Processing" to begin conversion
+5. **Monitor:** Watch real-time progress with file-by-file status updates
+6. **Complete:** Receive desktop notification when processing finishes
 
 **Features:**
 - **Drag-and-Drop:** Intuitive folder selection by dragging onto the app window
+- **Settings Management:** Toggle iTunes integration and overwrite mode with persistent storage
 - **Progress Display:** Real-time file-by-file progress with visual indicators
 - **Error Handling:** Clear error messages for failed conversions with dismiss options
 - **Desktop Notifications:** System notifications for completion status
