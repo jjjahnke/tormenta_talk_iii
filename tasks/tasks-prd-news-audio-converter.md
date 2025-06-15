@@ -3,18 +3,32 @@
 
 ## 📊 Project Progress Summary
 
-**Overall Progress: 100% Complete (Core functionality finished)**
+**Overall Progress: 100% Complete (Core functionality finished - requires updates for new PRD requirements)**
 
 ### ✅ Completed Tasks (Story Points: 59/59)
 - **S1.1** - Project structure and development environment ✅
 - **S1.2** - Local TTS library integration with chunking strategy ✅
-- **S1.3** - iTunes integration and playlist management ✅
+- **S1.3** - iTunes integration and playlist management (now optional) ✅
 - **C2.1** - Text file processing and content extraction ✅
-- **C2.2** - Audio processing and temporary file management ✅
+- **C2.2** - Audio processing and file output management ✅
 - **C2.3** - Core workflow orchestration and error handling ✅
 - **U3.1** - Command-line interface with progress feedback ✅
 - **U3.2** - Desktop application with drag-and-drop interface ✅
-- **T4.2** - Comprehensive unit test suite (150+ tests passing) ✅
+- **T4.2** - Comprehensive unit test suite (160+ tests passing) ✅
+
+### 🔄 **UPDATE REQUIRED: PRD Changes**
+**New Requirements from Updated PRD:**
+- **Default File Output:** Audio files should be saved alongside source files (same directory, same basename)
+- **Filename Conflict Resolution:** Automatic numbering (filename-1.mp3, filename-2.mp3, etc.)
+- **Optional iTunes Integration:** iTunes playlist creation should be optional via CLI flag (--itunes) and UI toggle
+- **Overwrite Option:** Command-line flag (--overwrite) to replace existing files instead of numbering
+
+### 🎯 Required Updates for New PRD Compliance
+- **C2.2** - Update audio processing to support direct file placement with conflict resolution
+- **C2.3** - Modify workflow to make iTunes integration optional and add filename conflict handling
+- **U3.1** - Add --itunes and --overwrite CLI flags
+- **U3.2** - Add iTunes integration toggle in desktop UI
+- **T4.2** - Update tests for new default behavior and optional iTunes integration
 
 ### 🔄 Current Status
 - **TTS Chunking Strategy:** Fully implemented and tested for long document stability
@@ -30,7 +44,96 @@
 - **S1.4** - Build system setup and distribution (Optional for enhanced deployment)
 
 ### 🎯 Next Phase
-**All core functionality complete!** Optional build system for automated packaging and distribution.
+**All core functionality complete!** Ready for PRD updates implementation.
+
+## 🔄 PRD Updates Implementation Plan
+
+### Phase 1: Core File Output Changes (C2.2, C2.3)
+**Estimated Effort:** 2-3 days
+**Priority:** High
+
+#### Required Code Changes:
+1. **AudioConverter Updates (`src/core/audio-converter.js`):**
+   - Modify `processAudio()` to save files alongside source files by default
+   - Implement filename conflict resolution with sequential numbering
+   - Add `overwrite` option to replace existing files instead of numbering
+   - Update file path generation logic
+
+2. **WorkflowOrchestrator Updates (`src/core/workflow-orchestrator.js`):**
+   - Make iTunes integration optional based on configuration
+   - Update default workflow: text → TTS → direct file placement
+   - Add optional iTunes integration step when enabled
+   - Update progress reporting for new workflow
+
+#### Implementation Steps:
+- [ ] Update AudioConverter to support direct file placement
+- [ ] Implement filename conflict resolution with numbering
+- [ ] Add overwrite option handling
+- [ ] Modify WorkflowOrchestrator to make iTunes optional
+- [ ] Update unit tests for new behavior
+- [ ] Test cross-platform file placement compatibility
+
+### Phase 2: CLI Interface Updates (U3.1)
+**Estimated Effort:** 1 day
+**Priority:** Medium
+
+#### Required Code Changes:
+1. **CLI Updates (`src/interfaces/cli.js`):**
+   - Add `--itunes` flag to enable iTunes integration
+   - Add `--overwrite` flag to replace existing files
+   - Update help text and usage documentation
+   - Update argument parsing and validation
+
+#### Implementation Steps:
+- [ ] Add new CLI flags with proper validation
+- [ ] Update help documentation
+- [ ] Test CLI argument parsing
+- [ ] Update CLI unit tests
+
+### Phase 3: Desktop UI Updates (U3.2)
+**Estimated Effort:** 1-2 days
+**Priority:** Medium
+
+#### Required Code Changes:
+1. **Desktop App Updates (`src/interfaces/desktop-app.js`, `src/interfaces/renderer.js`):**
+   - Add iTunes integration toggle in settings/preferences
+   - Add overwrite option toggle
+   - Update UI to show current configuration
+   - Update workflow initiation to pass configuration options
+
+#### Implementation Steps:
+- [ ] Design settings UI with iTunes and overwrite toggles
+- [ ] Implement configuration persistence
+- [ ] Update main process to handle configuration
+- [ ] Test desktop UI functionality
+
+### Phase 4: Testing Updates (T4.2)
+**Estimated Effort:** 1 day
+**Priority:** Medium
+
+#### Required Test Updates:
+1. **Unit Test Updates:**
+   - Update AudioConverter tests for direct file placement
+   - Add tests for filename conflict resolution
+   - Update WorkflowOrchestrator tests for optional iTunes
+   - Update CLI tests for new flags
+   - Update desktop app tests for new UI options
+
+#### Implementation Steps:
+- [ ] Update existing unit tests for new behavior
+- [ ] Add new tests for conflict resolution
+- [ ] Add tests for optional iTunes integration
+- [ ] Verify all tests pass with new implementation
+
+### 🎯 Success Criteria for PRD Updates
+- [ ] Audio files save alongside source files by default
+- [ ] Filename conflicts resolved with sequential numbering (filename-1.mp3, etc.)
+- [ ] iTunes integration is optional via CLI `--itunes` flag
+- [ ] iTunes integration is optional via desktop UI toggle
+- [ ] CLI `--overwrite` flag replaces existing files
+- [ ] All existing functionality preserved
+- [ ] All unit tests passing
+- [ ] Cross-platform compatibility maintained
 
 ## Project Context
 - **Technology Stack:** Cross-platform framework (Electron/Tauri), Node.js, Local TTS library, AppleScript/iTunes XML
@@ -231,35 +334,36 @@
 - **Assignee Suggestion:** Backend Developer
 - **Completion Notes:** Implemented FileProcessor class with recursive directory scanning, markdown cleaning, text preprocessing for TTS, audio filename generation, content validation, and comprehensive error handling. 32 unit tests passing.
 
-**C2.2** - Create audio processing and temporary file management
+**C2.2** - Create audio processing and direct file output management ✅ **COMPLETED - REQUIRES UPDATE**
 - **ID:** C2.2
 - **Type:** Task
 - **Priority:** High
 - **Story Points:** 6
 - **Execution Mode:** 🤖 AI Agent (with Human Design)
-- **Skills Required:** File Management, Audio Processing, Temporary Storage
+- **Skills Required:** File Management, Audio Processing, Filename Conflict Resolution
 - **Dependencies:** C2.1, S1.2
 - **Human Responsibilities:**
-  - Design temporary directory strategy and cleanup policies
+  - Design direct file output strategy (save alongside source files)
+  - Implement filename conflict resolution with sequential numbering
   - Review audio file format and quality specifications
-  - Test temporary file lifecycle and cleanup reliability
-  - Validate cross-platform file path handling
+  - Test file output reliability and cross-platform path handling
 - **AI Agent Responsibilities:**
-  - Generate temporary file creation and management utilities
+  - Generate direct file output utilities with conflict resolution
   - Create audio file validation and format conversion code
-  - Implement cleanup mechanisms with fail-safes
+  - Implement filename increment logic (filename-1.mp3, filename-2.mp3, etc.)
   - Generate file path handling for cross-platform compatibility
 - **Acceptance Criteria:**
   - [x] Creates audio files in iPhone-compatible format (MP3/AAC)
-  - [x] Manages temporary directory lifecycle reliably
-  - [x] Cleans up temporary files after processing completion
+  - [ ] **UPDATE NEEDED:** Saves audio files directly alongside source text files by default
+  - [ ] **UPDATE NEEDED:** Implements filename conflict resolution with sequential numbering
+  - [ ] **UPDATE NEEDED:** Provides option to overwrite existing files instead of numbering
   - [x] Handles disk space and permission errors gracefully
   - [x] Provides clear file operation status and error reporting
 - **Definition of Ready:** Audio format requirements confirmed, TTS integration tested
 - **Assignee Suggestion:** Backend Developer
-- **Completion Notes:** Implemented AudioConverter coordination layer with comprehensive temporary file management, cross-platform path handling, audio validation, metadata generation, and configurable cleanup policies. Features include file size limits, format conversion support, active file tracking, and robust error handling with fail-safes.
+- **Completion Notes:** Currently implemented with temporary file management. **NEEDS UPDATE** for direct file placement as default behavior, filename conflict resolution with sequential numbering, and overwrite option per new PRD requirements.
 
-**C2.3** - Implement core workflow orchestration and error handling ✅ **COMPLETED**
+**C2.3** - Implement core workflow orchestration with optional iTunes integration ✅ **COMPLETED - REQUIRES UPDATE**
 - **ID:** C2.3
 - **Type:** Story
 - **Priority:** High
@@ -268,11 +372,11 @@
 - **Skills Required:** Workflow Design, Error Handling, System Integration
 - **Dependencies:** C2.1, C2.2, S1.3
 - **Human Responsibilities:**
-  - Design main processing workflow and task sequencing
+  - Design main processing workflow with optional iTunes integration
   - Implement comprehensive error handling and recovery strategies
   - Design progress tracking and user feedback mechanisms
   - Create workflow state management and rollback capabilities
-  - Optimize processing pipeline for performance and reliability
+  - Modify pipeline to default to direct file output with optional iTunes integration
 - **AI Agent Responsibilities:**
   - Generate workflow orchestration templates
   - Create error logging and reporting utilities
@@ -282,18 +386,19 @@
   - Learn error handling patterns for multi-step processes
   - Understand performance optimization for file processing pipelines
 - **Acceptance Criteria:**
-  - [x] Executes complete workflow: text processing → TTS → iTunes import → cleanup
+  - [ ] **UPDATE NEEDED:** Executes complete workflow: text processing → TTS → direct file output (+ optional iTunes import)
+  - [ ] **UPDATE NEEDED:** Makes iTunes integration optional based on CLI flag or UI toggle
   - [x] Handles partial failures gracefully with detailed error reporting
   - [x] Provides real-time progress feedback for long-running operations
   - [x] Implements rollback mechanisms for failed operations
   - [x] Optimizes processing for typical daily volume (10-50 articles)
 - **Definition of Ready:** All core components integrated, workflow design approved
 - **Assignee Suggestion:** Senior Developer
-- **Completion Notes:** Implemented WorkflowOrchestrator with complete pipeline orchestration, file discovery logic with recursive directory scanning, batch processing with configurable concurrency, comprehensive error handling with retry mechanisms, workflow state management (pause/resume/stop), progress tracking with real-time events, and rollback capabilities through cleanup operations. Core workflow executes: file discovery → text extraction → audio conversion → iTunes import → cleanup with full error recovery.
+- **Completion Notes:** Currently implemented with mandatory iTunes integration. **NEEDS UPDATE** to make iTunes optional and implement direct file output as default per new PRD requirements.
 
 ### 🎨 U3.0 User Interfaces (Epic)
 
-**U3.1** - Create command-line interface with progress feedback ✅
+**U3.1** - Create command-line interface with iTunes integration options ✅ **COMPLETED - REQUIRES UPDATE**
 - **ID:** U3.1
 - **Type:** Task
 - **Priority:** High
@@ -303,6 +408,8 @@
 - **Dependencies:** C2.3
 - **Human Responsibilities:**
   - Design CLI argument parsing and validation
+  - Add --itunes flag for optional iTunes integration
+  - Add --overwrite flag for file conflict resolution
   - Create intuitive command syntax and help documentation
   - Design progress display and user feedback patterns
   - Test CLI usability and error message clarity
@@ -313,14 +420,16 @@
 - **Acceptance Criteria:**
   - [x] Accepts directory path as primary input parameter
   - [x] Provides verbose logging option for troubleshooting
+  - [ ] **UPDATE NEEDED:** Includes --itunes flag to enable iTunes playlist integration
+  - [ ] **UPDATE NEEDED:** Includes --overwrite flag to replace existing files instead of numbering
   - [x] Displays file-by-file progress during processing
   - [x] Shows clear success/failure summary with error details
   - [x] Includes comprehensive help and usage information
 - **Definition of Ready:** Core workflow tested, CLI requirements confirmed
 - **Assignee Suggestion:** Frontend Developer
-- **Implementation Notes:** CLI completed with Commander.js framework, ora spinners for progress, chalk for colors, and comprehensive options including --verbose, --dry-run, --concurrency, --retry-attempts, and --continue-on-error flags.
+- **Implementation Notes:** CLI completed with Commander.js framework. **NEEDS UPDATE** to add --itunes and --overwrite flags per new PRD requirements.
 
-**U3.2** - Develop cross-platform desktop application with drag-and-drop ✅ **COMPLETED**
+**U3.2** - Develop cross-platform desktop application with drag-and-drop ✅ **COMPLETED - REQUIRES UPDATE**
 - **ID:** U3.2
 - **Type:** Story
 - **Priority:** High
@@ -350,9 +459,10 @@
   - [x] Shows desktop notifications for completion status
   - [x] Presents error dialogs for failed conversions (dismissible)
   - [x] Features "TT3" branding and professional icon design
+  - [ ] **UPDATE NEEDED:** Includes iTunes integration toggle in UI settings
 - **Definition of Ready:** Desktop framework selected, UI design approved
 - **Assignee Suggestion:** Desktop Application Developer
-- **Completion Notes:** Implemented complete Electron-based desktop application with modern gradient UI, drag-and-drop functionality, real-time progress tracking, desktop notifications, error handling, professional TT3 branding, and cross-platform compatibility. Includes secure preload script, comprehensive event handling, and intuitive user experience.
+- **Completion Notes:** Implemented complete Electron-based desktop application with modern gradient UI, drag-and-drop functionality, real-time progress tracking, desktop notifications, error handling, professional TT3 branding, and cross-platform compatibility. **NEEDS UPDATE** to add iTunes integration toggle in UI per new PRD requirements.
 
 **U3.3** - Implement progress feedback and error reporting system
 - **ID:** U3.3
@@ -553,12 +663,15 @@
 | PRD Requirement | Related Tasks | Acceptance Criteria |
 |----------------|---------------|-------------------|
 | FR-1: Modular TTS conversion service | S1.2, C2.1 | Local TTS library converts text to iPhone-compatible audio offline |
-| FR-2: Generate audio files in temporary directory | C2.2, C2.3 | Audio files created in temp directory, cleaned after iTunes import |
-| FR-8: Create iTunes playlists with naming convention | S1.3, C2.3 | Playlists created as "News-YYYY-MM-DD" with all audio files |
-| FR-11: Command-line interface with directory input | U3.1, C2.3 | CLI accepts directory path and processes all text files |
-| FR-15: Cross-platform desktop application with TT3 branding | U3.2, U3.3 | Desktop app with drag-and-drop, progress display, TT3 icon |
-| FR-18: File-by-file progress during TTS conversion | U3.2, U3.3 | Progress display shows current file being processed |
-| FR-23: Package as single executable with GitHub Release | S1.4, D5.2 | Automated release with zip distribution for all platforms |
+| FR-7: Save audio files alongside source files by default | C2.2, C2.3 | Audio files saved in same directory as source text files with same basename |
+| FR-8: Implement filename conflict resolution | C2.2, C2.3 | Sequential numbering for conflicts (filename-1.mp3, filename-2.mp3, etc.) |
+| FR-9: Optional iTunes integration via CLI flag | U3.1, C2.3 | --itunes flag enables iTunes playlist creation |
+| FR-10: Optional iTunes integration via UI toggle | U3.2, C2.3 | Desktop app includes iTunes integration toggle |
+| FR-11: Overwrite option for existing files | U3.1, C2.2 | --overwrite flag replaces existing files instead of numbering |
+| FR-18: Command-line interface with directory input | U3.1, C2.3 | CLI accepts directory path and processes all text files |
+| FR-23: Cross-platform desktop application with TT3 branding | U3.2, U3.3 | Desktop app with drag-and-drop, progress display, TT3 icon |
+| FR-25: File-by-file progress during TTS conversion | U3.2, U3.3 | Progress display shows current file being processed |
+| FR-32: Package as single executable with GitHub Release | S1.4, D5.2 | Automated release with zip distribution for all platforms |
 
 ## Risk Assessment & Mitigation
 
