@@ -70,6 +70,17 @@ class ITunesManager {
   }
 
   /**
+   * Import audio file (alias for importToPlaylist for WorkflowOrchestrator compatibility)
+   * @param {string} audioFilePath - Path to the audio file
+   * @param {Object} metadata - Metadata object with title, artist, album, etc.
+   * @returns {Promise<Object>} Import result
+   */
+  async importAudioFile (audioFilePath, metadata = {}) {
+    const { title = 'Untitled', artist = 'TT3 News' } = metadata
+    return this.importToPlaylist(audioFilePath, title, artist)
+  }
+
+  /**
    * Clean up old playlists and remove associated files
    * @returns {Promise<{success: boolean, cleanedPlaylists: string[], removedTracks: number}>}
    */

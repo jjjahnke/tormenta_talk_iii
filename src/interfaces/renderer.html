@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TT3 - News Audio Converter</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+
+        .header {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid #e0e0e0;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 20px;
+        }
+
+        .app-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #333;
+            margin: 0;
+        }
+
+        .app-subtitle {
+            font-size: 14px;
+            color: #666;
+            margin: 5px 0 0 0;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        .drop-zone {
+            flex: 1;
+            border: 3px dashed #ccc;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 40px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            min-height: 200px;
+        }
+
+        .drop-zone.drag-over {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+            transform: scale(1.02);
+        }
+
+        .drop-zone-icon {
+            font-size: 48px;
+            color: #ccc;
+            margin-bottom: 20px;
+            transition: color 0.3s ease;
+        }
+
+        .drop-zone.drag-over .drop-zone-icon {
+            color: #667eea;
+        }
+
+        .drop-zone-text {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .drop-zone-subtext {
+            font-size: 14px;
+            color: #999;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 120px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #666;
+            border: 1px solid #ddd;
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: #e0e0e0;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .progress-section {
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 12px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .progress-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .progress-stats {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .current-file {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .file-list {
+            max-height: 150px;
+            overflow-y: auto;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background: white;
+        }
+
+        .file-item {
+            padding: 8px 12px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            font-size: 13px;
+        }
+
+        .file-item:last-child {
+            border-bottom: none;
+        }
+
+        .file-name {
+            flex: 1;
+            color: #333;
+        }
+
+        .file-status {
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .status-processing {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-completed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-failed {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .errors-section {
+            margin-top: 20px;
+        }
+
+        .error-item {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+        }
+
+        .error-file {
+            font-weight: 600;
+            color: #721c24;
+            margin-bottom: 5px;
+        }
+
+        .error-message {
+            font-size: 14px;
+            color: #721c24;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .footer {
+            padding: 15px 20px;
+            text-align: center;
+            border-top: 1px solid #e0e0e0;
+            background: rgba(255, 255, 255, 0.9);
+            font-size: 12px;
+            color: #999;
+        }
+
+        /* Animations */
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* Loading spinner */
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <div class="logo-icon">TT3</div>
+                <div>
+                    <h1 class="app-title">News Audio Converter</h1>
+                    <p class="app-subtitle">Convert text files to audio and import to iTunes</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="drop-zone" id="dropZone">
+                <div class="drop-zone-icon">📁</div>
+                <div class="drop-zone-text">Drag a folder here or click to select</div>
+                <div class="drop-zone-subtext">Supports .txt and .md files</div>
+            </div>
+
+            <div class="controls">
+                <button class="btn btn-primary" id="selectBtn">Select Folder</button>
+                <button class="btn btn-primary" id="processBtn" disabled>Start Processing</button>
+                <button class="btn btn-secondary" id="stopBtn" disabled>Stop</button>
+            </div>
+
+            <div class="progress-section hidden" id="progressSection">
+                <div class="progress-header">
+                    <div class="progress-title">Processing Files</div>
+                    <div class="progress-stats" id="progressStats">0 / 0</div>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="current-file" id="currentFile">Ready to start...</div>
+                <div class="file-list" id="fileList"></div>
+            </div>
+
+            <div class="errors-section hidden" id="errorsSection">
+                <h3>Errors</h3>
+                <div id="errorsList"></div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <div>TT3 v<span id="appVersion">0.1.0</span> | Privacy-focused local processing</div>
+        </div>
+    </div>
+
+    <script src="renderer.js"></script>
+</body>
+</html>

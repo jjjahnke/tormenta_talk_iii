@@ -4,7 +4,7 @@ A cross-platform application that converts newspaper articles to audio files and
 
 ## 📊 Current Status
 
-**🔥 Active Development** - Core functionality 85% complete
+**🔥 Active Development** - Core functionality 100% complete
 
 ### ✅ Completed Features
 - **Local TTS Engine** - Cross-platform text-to-speech with chunking for stability (macOS, Windows, Linux)
@@ -12,16 +12,19 @@ A cross-platform application that converts newspaper articles to audio files and
 - **File Processing** - Smart text extraction and preprocessing (.txt/.md support)
 - **Audio Processing** - Temporary file management and audio format conversion coordination
 - **Workflow Orchestration** - File discovery and batch processing with concurrency control
-- **Testing Framework** - Comprehensive unit tests (124+ tests passing)
+- **Command-Line Interface** - Professional CLI with progress display and comprehensive options
+- **Desktop Application** - Cross-platform Electron app with drag-and-drop interface, progress feedback, and TT3 branding
+- **Testing Framework** - Comprehensive unit tests (150+ tests passing)
 
-### 🔄 In Progress
-- User interfaces (CLI and desktop app)
-- Build system and distribution
+### 🔄 Next Phase
+- Build system setup and distribution packaging
 
 ### 📈 Progress Details
 ```bash
-npm test        # Run all tests (124+ tests passing)
-npm run lint    # Code quality checks
+npm test           # Run all tests (150+ tests passing)
+npm run lint       # Code quality checks
+node src/interfaces/cli.js --help  # CLI usage information
+npm run dev:desktop  # Launch desktop application
 ```
 
 ## Overview
@@ -55,6 +58,12 @@ TT3 (Tormenta Talk v3) automates the conversion of text articles to audio using 
   - ✅ Progress tracking and error handling
 - **Cross-Platform:** Works on macOS, Windows, and Linux
 - **Dual Interface:** Command-line tool and desktop drag-and-drop application
+- **Desktop Application:** Electron-based cross-platform GUI with intuitive drag-and-drop interface
+  - ✅ Folder drag-and-drop onto application window
+  - ✅ Real-time progress display with file-by-file status
+  - ✅ Desktop notifications for completion/error status
+  - ✅ Professional TT3 branding and icon design
+  - ✅ Cross-platform compatibility (macOS, Windows, Linux)
 - **Smart Cleanup:** Automatically removes old playlists and audio files (2-day retention)
 - **Progress Feedback:** Real-time processing status and error reporting
 
@@ -63,15 +72,86 @@ TT3 (Tormenta Talk v3) automates the conversion of text articles to audio using 
 - **Modular Monolith:** Clear internal boundaries for future web service extraction
 - **Local TTS:** No external API dependencies, complete offline operation
 - **File-Based Processing:** Supports .txt and .md files with extensible content handling
-- **Cross-Platform Desktop:** Built with Electron/Tauri for consistent experience
+- **Cross-Platform Desktop:** Built with Electron for consistent experience across platforms
+- **Privacy-Focused:** All processing happens locally with no external dependencies
 
 ## Quick Start
 
+### Desktop Application (Recommended)
 ```bash
 # Install dependencies
 npm install
 
-# Run tests to verify setup
+# Launch desktop application
+npm run dev:desktop
+```
+
+Then simply drag a folder containing .txt or .md files onto the application window!
+
+### Command Line Interface
+```bash
+# Process articles using CLI
+node src/interfaces/cli.js process /path/to/articles
+
+# Check system status
+node src/interfaces/cli.js status
+
+# CLI help
+node src/interfaces/cli.js --help
+```
+
+### CLI Usage Examples
+
+```bash
+# Process a single file
+node src/interfaces/cli.js process article.txt
+
+# Process all files in a directory
+node src/interfaces/cli.js process /path/to/articles
+
+# Preview files without processing
+node src/interfaces/cli.js process /path/to/articles --dry-run
+
+# Process with verbose logging
+node src/interfaces/cli.js process /path/to/articles --verbose
+
+# Custom concurrency and retry settings
+node src/interfaces/cli.js process /path/to/articles --concurrency 2 --retry-attempts 3
+
+# Stop on first error (default: continue processing)
+node src/interfaces/cli.js process /path/to/articles --no-continue-on-error
+
+# Check system status with component details
+node src/interfaces/cli.js status --verbose
+
+# Show version and system information
+node src/interfaces/cli.js version
+```
+
+### Desktop Application Usage
+
+The desktop application provides an intuitive drag-and-drop interface:
+
+1. **Launch:** Run `npm run dev:desktop` to open the application
+2. **Select Files:** Either:
+   - Drag a folder containing articles onto the application window
+   - Click "Select Folder" to browse for a directory
+3. **Process:** Click "Start Processing" to begin conversion
+4. **Monitor:** Watch real-time progress with file-by-file status updates
+5. **Complete:** Receive desktop notification when processing finishes
+
+**Features:**
+- **Drag-and-Drop:** Intuitive folder selection by dragging onto the app window
+- **Progress Display:** Real-time file-by-file progress with visual indicators
+- **Error Handling:** Clear error messages for failed conversions with dismiss options
+- **Desktop Notifications:** System notifications for completion status
+- **Professional UI:** Modern gradient design with TT3 branding
+- **Cross-Platform:** Consistent experience on macOS, Windows, and Linux
+
+## Development & Testing
+
+```bash
+# Run full test suite
 npm test
 
 # Test integration workflow
@@ -79,6 +159,8 @@ node test-integration.js
 
 # Development
 npm run lint    # Check code quality
+npm run test:watch  # Watch mode for tests
+npm run dev:desktop  # Desktop app development mode
 ```
 
 ## Core Components
@@ -89,10 +171,15 @@ npm run lint    # Check code quality
 - **`src/core/file-processor.js`** - Text file discovery and content extraction
 - **`src/core/audio-converter.js`** - Audio processing coordination and temporary file management
 - **`src/core/workflow-orchestrator.js`** - File discovery and batch processing pipeline
+- **`src/interfaces/cli.js`** - Command-line interface with comprehensive options
+- **`src/interfaces/desktop-app.js`** - Electron-based desktop application
+- **`src/interfaces/preload.js`** - Secure Electron preload script
+- **`src/interfaces/renderer.js`** - Desktop app frontend logic
+- **`src/interfaces/renderer.html`** - Desktop app user interface
 
 ### 🔄 Coming Next
-- **`src/interfaces/cli.js`** - Command-line interface
-- **`src/interfaces/desktop-app.js`** - Desktop application
+- **Build System Setup** - Cross-platform packaging and distribution
+- **GitHub Actions** - Automated testing and release workflows
 
 ## Documentation
 

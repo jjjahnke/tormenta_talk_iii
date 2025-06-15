@@ -16,6 +16,47 @@ class FileProcessor {
     }
     this.processed = []
     this.errors = []
+    this.initialized = false
+  }
+
+  /**
+   * Initialize the file processor
+   * @returns {Promise<{success: boolean, message: string}>}
+   */
+  async initialize () {
+    try {
+      // Validate that we can access the file system
+      await fs.access(process.cwd())
+
+      this.initialized = true
+      return {
+        success: true,
+        message: 'FileProcessor initialized successfully'
+      }
+    } catch (error) {
+      throw new Error(`Failed to initialize FileProcessor: ${error.message}`)
+    }
+  }
+
+  /**
+   * Check if the file processor is ready
+   * @returns {boolean}
+   */
+  isReady () {
+    return this.initialized
+  }
+
+  /**
+   * Get current status information
+   * @returns {Object}
+   */
+  getStatus () {
+    return {
+      ready: this.initialized,
+      processed: this.processed.length,
+      errors: this.errors.length,
+      supportedExtensions: this.options.supportedExtensions
+    }
   }
 
   /**
@@ -87,6 +128,20 @@ class FileProcessor {
       }
     } catch (error) {
       throw new Error(`Failed to process file ${filePath}: ${error.message}`)
+    }
+  }
+
+  /**
+   * Extract text from a single file (alias for processSingleFile for WorkflowOrchestrator compatibility)
+   * @param {string} filePath - Path to the text file
+   * @returns {Promise<Object>} Processed file object with 'content' property for WorkflowOrchestrator
+   */
+  async extractText (filePath) {
+    const result = await this.processSingleFile(filePath)
+    // Add 'content' property for WorkflowOrchestrator compatibility
+    return {
+      ...result,
+      content: result.cleanedText
     }
   }
 

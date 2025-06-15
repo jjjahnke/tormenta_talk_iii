@@ -94,6 +94,19 @@ class LocalTTSService {
   }
 
   /**
+   * Get current status information
+   * @returns {Object}
+   */
+  getStatus () {
+    return {
+      ready: this.initialized,
+      platform: this.platform,
+      engine: this._getTTSEngine(),
+      supportedFormats: this._getSupportedFormats()
+    }
+  }
+
+  /**
    * Clean up temporary files
    */
   async cleanup () {
