@@ -1,6 +1,6 @@
 {
   "name": "tormenta-talk-iii",
-  "version": "0.1.0",
+  "version": "0.9.0",
   "description": "TT3 - Cross-platform news audio converter with local TTS and iTunes integration",
   "main": "src/interfaces/cli.js",
   "bin": {
