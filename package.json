@@ -17,7 +17,7 @@
     "lint": "eslint src/ tests/",
     "lint:fix": "eslint src/ tests/ --fix",
     "build": "npm run build:cli && npm run build:desktop",
-    "build:cli": "pkg src/interfaces/cli.js --targets node18-macos-x64,node18-linux-x64,node18-win-x64 --out-path dist/cli --output cli-macos,cli-linux,cli-win.exe",
+    "build:cli": "pkg src/interfaces/cli.js --targets node18-macos-x64 --output dist/cli/cli-macos && pkg src/interfaces/cli.js --targets node18-linux-x64 --output dist/cli/cli-linux && pkg src/interfaces/cli.js --targets node18-win-x64 --output dist/cli/cli-win.exe",
     "build:desktop": "electron-builder",
     "dev:desktop": "electron src/interfaces/desktop-app.js",
     "package": "npm run build && npm run package:all",
