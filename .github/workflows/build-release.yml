@@ -19,6 +19,12 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
     
+    - name: Install TTS dependencies (Linux)
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y espeak espeak-data festival festvox-kallpc16k alsa-utils
+    
     - name: Setup Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v4
       with:
@@ -55,6 +61,12 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
     
+    - name: Install TTS dependencies (Linux)
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y espeak espeak-data festival festvox-kallpc16k alsa-utils
+    
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
@@ -80,12 +92,16 @@ jobs:
         
         # Package CLI binaries
         if [ "${{ matrix.platform }}" = "win32" ]; then
-          if [ -f "dist/cli/tt3-cli-win.exe" ]; then
-            cp "dist/cli/tt3-cli-win.exe" "dist-artifacts/tt3-cli-${{ matrix.platform }}-${{ matrix.arch }}.exe"
+          if [ -f "dist/cli/cli-win.exe" ]; then
+            cp "dist/cli/cli-win.exe" "dist-artifacts/tt3-cli-${{ matrix.platform }}-${{ matrix.arch }}.exe"
+          fi
+        elif [ "${{ matrix.platform }}" = "darwin" ]; then
+          if [ -f "dist/cli/cli-macos" ]; then
+            cp "dist/cli/cli-macos" "dist-artifacts/tt3-cli-${{ matrix.platform }}-${{ matrix.arch }}"
           fi
         else
-          if [ -f "dist/cli/tt3-cli-${{ matrix.platform }}" ]; then
-            cp "dist/cli/tt3-cli-${{ matrix.platform }}" "dist-artifacts/tt3-cli-${{ matrix.platform }}-${{ matrix.arch }}"
+          if [ -f "dist/cli/cli-linux" ]; then
+            cp "dist/cli/cli-linux" "dist-artifacts/tt3-cli-${{ matrix.platform }}-${{ matrix.arch }}"
           fi
         fi
         
@@ -96,7 +112,7 @@ jobs:
             zip -r "../../dist-artifacts/tt3-desktop-${{ matrix.platform }}-${{ matrix.arch }}.zip" win-unpacked/
             cd ../..
           fi
-          if [ -f "dist/desktop/TT3 Setup*.exe" ]; then
+          if [ -f "dist/desktop/TT3 Setup"*.exe ]; then
             cp dist/desktop/TT3\ Setup*.exe "dist-artifacts/tt3-desktop-${{ matrix.platform }}-${{ matrix.arch }}-setup.exe"
           fi
         elif [ "${{ matrix.platform }}" = "darwin" ]; then
