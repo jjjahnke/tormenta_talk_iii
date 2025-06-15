@@ -85,18 +85,29 @@ jobs:
     - name: Build CLI application
       run: npm run build:cli
     
-    - name: Build desktop application
-      run: npm run build:desktop
+    - name: Build desktop application (macOS)
+      if: matrix.platform == 'darwin'
+      run: npm run package:mac
       env:
         CSC_IDENTITY_AUTO_DISCOVERY: false
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         DEBUG: electron-builder
 
-    - name: Package applications
-      run: npm run package:all
+    - name: Build desktop application (Windows)
+      if: matrix.platform == 'win32'
+      run: npm run package:win
       env:
         CSC_IDENTITY_AUTO_DISCOVERY: false
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        DEBUG: electron-builder
+
+    - name: Build desktop application (Linux)
+      if: matrix.platform == 'linux'
+      run: npm run package:linux
+      env:
+        CSC_IDENTITY_AUTO_DISCOVERY: false
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        DEBUG: electron-builder
     
     - name: Create distribution artifacts
       shell: bash

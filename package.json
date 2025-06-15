@@ -17,7 +17,7 @@
     "lint": "eslint src/ tests/",
     "lint:fix": "eslint src/ tests/ --fix",
     "build": "npm run build:cli && npm run build:desktop",
-    "build:cli": "pkg src/interfaces/cli.js --targets node18-macos-x64,node18-linux-x64,node18-win-x64 --out-path dist/cli",
+    "build:cli": "pkg src/interfaces/cli.js --targets node18-macos-x64,node18-linux-x64,node18-win-x64 --out-path dist/cli --output cli-macos,cli-linux,cli-win.exe",
     "build:desktop": "electron-builder",
     "dev:desktop": "electron src/interfaces/desktop-app.js",
     "package": "npm run build && npm run package:all",
@@ -62,7 +62,8 @@
     "eslint-plugin-promise": "^6.1.1",
     "electron": "^25.3.1",
     "electron-builder": "^24.6.3",
-    "pkg": "^5.8.1"
+    "pkg": "^5.8.1",
+    "dmg-license": "^1.0.11"
   },
   "build": {
     "appId": "com.tormenta.tt3",
