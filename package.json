@@ -8,6 +8,8 @@
   },
   "scripts": {
     "start": "node src/interfaces/cli.js",
+    "desktop": "electron src/interfaces/desktop-app.js",
+    "cli": "node src/interfaces/cli.js",
     "dev": "node --inspect src/interfaces/cli.js",
     "test": "jest",
     "test:watch": "jest --watch",
