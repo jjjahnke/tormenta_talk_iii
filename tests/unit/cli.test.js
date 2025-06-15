@@ -142,7 +142,10 @@ describe('TT3CLI', () => {
       expect(WorkflowOrchestrator).toHaveBeenCalledWith({
         concurrency: 1,
         continueOnError: true,
-        retryAttempts: 2
+        retryAttempts: 2,
+        enableItunesIntegration: false,
+        outputMode: 'direct',
+        overwriteExisting: false
       })
       expect(mockOrchestrator.initialize).toHaveBeenCalled()
       expect(mockOrchestrator.processFiles).toHaveBeenCalledWith('/test/directory', expect.any(Object))
@@ -156,7 +159,10 @@ describe('TT3CLI', () => {
       expect(WorkflowOrchestrator).toHaveBeenCalledWith({
         concurrency: 3,
         continueOnError: true,
-        retryAttempts: 2
+        retryAttempts: 2,
+        enableItunesIntegration: false,
+        outputMode: 'direct',
+        overwriteExisting: false
       })
     })
 
@@ -168,7 +174,10 @@ describe('TT3CLI', () => {
       expect(WorkflowOrchestrator).toHaveBeenCalledWith({
         concurrency: 1,
         continueOnError: false,
-        retryAttempts: 2
+        retryAttempts: 2,
+        enableItunesIntegration: false,
+        outputMode: 'direct',
+        overwriteExisting: false
       })
     })
 
@@ -196,6 +205,51 @@ describe('TT3CLI', () => {
       // Should setup verbose listeners
       expect(mockOrchestrator.on).toHaveBeenCalledWith('workflow:started', expect.any(Function))
       expect(mockOrchestrator.on).toHaveBeenCalledWith('file:started', expect.any(Function))
+    })
+
+    test('should enable iTunes integration when --itunes flag is used', async () => {
+      const mockArgv = ['node', 'cli.js', 'process', '/test/directory', '--itunes']
+
+      await cli.program.parseAsync(mockArgv)
+
+      expect(WorkflowOrchestrator).toHaveBeenCalledWith({
+        concurrency: 1,
+        continueOnError: true,
+        retryAttempts: 2,
+        enableItunesIntegration: true,
+        outputMode: 'direct',
+        overwriteExisting: false
+      })
+    })
+
+    test('should enable overwrite mode when --overwrite flag is used', async () => {
+      const mockArgv = ['node', 'cli.js', 'process', '/test/directory', '--overwrite']
+
+      await cli.program.parseAsync(mockArgv)
+
+      expect(WorkflowOrchestrator).toHaveBeenCalledWith({
+        concurrency: 1,
+        continueOnError: true,
+        retryAttempts: 2,
+        enableItunesIntegration: false,
+        outputMode: 'direct',
+        overwriteExisting: true
+      })
+    })
+
+    test('should handle both --itunes and --overwrite flags together', async () => {
+      const mockArgv = ['node', 'cli.js', 'process', '/test/directory', '--itunes', '--overwrite']
+
+      await cli.program.parseAsync(mockArgv)
+
+      expect(WorkflowOrchestrator).toHaveBeenCalledWith({
+        concurrency: 1,
+        continueOnError: true,
+        retryAttempts: 2,
+        enableItunesIntegration: true,
+        outputMode: 'direct',
+        overwriteExisting: true
+      })
     })
   })
 

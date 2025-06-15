@@ -2,9 +2,9 @@
 
 ## 1. Introduction/Overview
 
-The News Audio Converter is a modular application system that converts newspaper articles into audio files and imports them into iTunes playlists for hands-free news consumption. The system is designed with a phased approach: starting with local file processing (command-line and desktop drag-and-drop) and evolving toward a web-based application with URL collection and browser plugin integration.
+The News Audio Converter is a modular application system that converts newspaper articles into audio files for hands-free news consumption. The system supports optional iTunes playlist integration and provides flexible output options. The system is designed with a phased approach: starting with local file processing (command-line and desktop drag-and-drop) and evolving toward a web-based application with URL collection and browser plugin integration.
 
-**Primary Goal:** Enable daily hands-free consumption of newspaper articles through automated text-to-speech conversion and iTunes playlist management, with a flexible architecture that supports both current local file workflows and future web-based article collection.
+**Primary Goal:** Enable daily hands-free consumption of newspaper articles through automated text-to-speech conversion, with flexible output options including direct file placement and optional iTunes playlist management, using a flexible architecture that supports both current local file workflows and future web-based article collection.
 
 **Context:** This system serves as both a standalone local application and the foundation for a future web application where users will collect article URLs via browser plugins and generate audio files on-demand.
 
@@ -14,16 +14,17 @@ The News Audio Converter is a modular application system that converts newspaper
 
 ### Primary Goals
 1. **Automate Daily News Audio Generation:** Convert articles to audio files with a single action (command, drag-and-drop, or web button)
-2. **Seamless iTunes Integration:** Create dated playlists that automatically sync to iPhone for immediate listening
-3. **Efficient Storage Management:** Maintain only current and previous day's content to prevent storage bloat
+2. **Flexible Output Options:** Support direct audio file placement alongside source files by default, with optional iTunes playlist integration
+3. **Intelligent File Management:** Automatically handle filename conflicts and provide efficient storage options
 4. **Intuitive User Interface:** Provide multiple interaction methods (CLI, desktop, and future web interface)
 5. **Modular Architecture:** Design core components for reuse in both local and web-based implementations
 
 ### Success Metrics
 - **Conversion Success Rate:** 99%+ of text files successfully converted to audio
-- **Playlist Creation Success:** 100% reliable iTunes playlist creation and iPhone sync
-- **Storage Efficiency:** Maximum 2 days of audio content retained at any time
-- **Processing Speed:** Complete workflow (conversion + playlist creation + cleanup) under 5 minutes for typical daily volume
+- **File Placement Accuracy:** 100% reliable audio file placement in correct locations with proper naming
+- **iTunes Integration Success (when enabled):** 100% reliable iTunes playlist creation and iPhone sync
+- **Storage Efficiency:** Configurable retention policies and efficient file conflict resolution
+- **Processing Speed:** Complete workflow (conversion + file placement/iTunes integration + cleanup) under 5 minutes for typical daily volume
 
 ### Timeline/Priority
 - **Priority:** High - Daily use case requires reliable, consistent operation
@@ -78,10 +79,11 @@ The News Audio Converter is a modular application system that converts newspaper
 ## 4. User Stories
 
 ### Current Phase Stories
-- **As a news consumer**, I want to run a single command that converts my saved articles to audio, so that I can listen to them hands-free during my commute
+- **As a news consumer**, I want to run a single command that converts my saved articles to audio files placed alongside the source files, so that I can easily find and listen to them hands-free
 - **As a non-technical user**, I want to drag a folder of articles onto a desktop icon to start the conversion process, so that I don't need to remember command-line syntax
-- **As an iPhone user**, I want articles automatically organized in a dated iTunes playlist, so that I can easily find and play today's news content
-- **As someone with limited storage**, I want old audio files and playlists automatically cleaned up, so that my device doesn't accumulate unnecessary files
+- **As an iPhone user**, I want the option to automatically organize articles in a dated iTunes playlist, so that I can easily sync and play today's news content on my device
+- **As someone who prefers simple file management**, I want audio files saved directly next to my text files by default, so that my content stays organized without additional complexity
+- **As a user with existing files**, I want the system to automatically handle naming conflicts by creating numbered versions, so that my existing audio files are never overwritten accidentally
 
 ### Future Phase Stories (Web Application)
 - **As a web user**, I want to collect article URLs while browsing using a browser plugin, so that I can build a reading list throughout the day
@@ -92,9 +94,10 @@ The News Audio Converter is a modular application system that converts newspaper
 ### Current Secondary Stories
 - **As a daily user**, I want the system to handle various text file formats, so that articles from different sources work consistently
 - **As a multitasker**, I want clear audio quality with appropriate pacing, so that I can understand the content while doing other activities
-- **As a mobile user**, I want the playlist to sync reliably to my iPhone, so that content is available offline
+- **As an iTunes user**, I want the option to enable playlist integration, so that content can automatically sync to my iPhone when desired
+- **As a user who prefers manual file management**, I want audio files placed directly with source files by default, so that I maintain full control over my content organization
 - **As a desktop user**, I want visual feedback when dragging folders to the application icon, so that I know the process has started
-- **As a user monitoring progress**, I want to see which specific file is being converted and uploaded, so that I can track processing status
+- **As a user monitoring progress**, I want to see which specific file is being converted, so that I can track processing status
 - **As a user encountering errors**, I want failed conversions presented in a dismissible dialog, so that I can quickly review and dismiss issues
 - **As a daily user**, I want a simple manual process without automation complexity, so that I maintain control over when processing occurs
 
@@ -104,19 +107,26 @@ The News Audio Converter is a modular application system that converts newspaper
 
 #### Text Processing & Audio Conversion
 1. **The system must provide a modular text-to-speech conversion service using local TTS library for offline operation and privacy**
-2. **The system must generate audio files in iPhone-compatible format (MP3 or AAC) in a temporary directory**
+2. **The system must generate audio files in iPhone-compatible format (MP3 or AAC) by default**
 3. **The system must handle common text file formats (.txt, .md) and be extensible for web-extracted content**
 4. **The system must generate meaningful audio filenames based on source content (filename or article title)**
 5. **The system must provide clear success/failure feedback for each operation with structured logging**
 6. **The system must attempt to convert all articles and report which files failed with specific error messages**
-7. **The system must clean up temporary audio files after successful iTunes import or processing completion**
 
-#### iTunes Integration & Storage Management
-8. **The system must copy audio files from temporary directory to iTunes library and create playlists with naming convention "News-YYYY-MM-DD"**
-9. **The system must add all successfully converted audio files to the current day's playlist**
-10. **The system must automatically delete audio files older than 2 days from iTunes library**
-11. **The system must automatically delete iTunes playlists older than 2 days**
-12. **The system must complete all operations (convert, import, cleanup) in a single execution with comprehensive error handling**
+#### Default File Output Behavior
+7. **The system must by default save audio files in the same directory as the source text file**
+8. **The system must use the same base filename as the source file but with appropriate audio extension (.mp3 or .aac)**
+9. **The system must handle filename conflicts by appending sequential numbers (e.g., filename-1.mp3, filename-2.mp3, etc.)**
+10. **The system must check for existing files with the target name and automatically increment the suffix until a unique name is found**
+11. **The system must provide an option to overwrite existing files instead of creating numbered versions**
+
+#### Optional iTunes Integration & Storage Management
+12. **The system must provide optional iTunes integration that can be enabled via command-line flag or UI option**
+13. **When iTunes integration is enabled, the system must copy audio files to iTunes library and create playlists with naming convention "News-YYYY-MM-DD"**
+14. **When iTunes integration is enabled, the system must add all successfully converted audio files to the current day's playlist**
+15. **When iTunes integration is enabled, the system must automatically delete audio files older than specified days from iTunes library (default: 2 days)**
+16. **When iTunes integration is enabled, the system must automatically delete iTunes playlists older than specified days (default: 2 days)**
+17. **The system must complete all operations (convert, file placement, optional iTunes integration, cleanup) in a single execution with comprehensive error handling**
 
 #### Web Application Audio Processing (Future)
 13. **For web application deployment, the system must support combining individual audio files into a single large audio file**
@@ -125,29 +135,38 @@ The News Audio Converter is a modular application system that converts newspaper
 ### Phase 1: User Interfaces
 
 #### Command-Line Interface
-11. **The system must provide a command-line interface that accepts a directory path as input**
-12. **The system must support optional parameters for verbose logging and configuration**
+18. **The system must provide a command-line interface that accepts a directory path as input**
+19. **The system must support optional parameters for verbose logging and configuration**
+20. **The system must provide a command-line flag (--itunes or --playlist) to enable iTunes integration**
+21. **The system must provide a command-line flag (--overwrite) to overwrite existing audio files instead of creating numbered versions**
+22. **The system must provide help documentation showing all available options and usage examples**
 
 #### Desktop Application Interface
-15. **The system must provide a cross-platform desktop application with "TT3" branding for Tormenta Talk v3**
-16. **The system must accept folder drag-and-drop onto the application icon to initiate processing**
-17. **The system must provide visual feedback during drag-and-drop operations (hover states, drop zones)**
-18. **The system must display file-by-file progress during TTS conversion phase with current file being processed**
-19. **The system must display file-by-file progress during iTunes upload phase with current file being uploaded**
-20. **The system must show overall completion status via desktop notification**
-21. **The system must present any conversion or upload failures in a dismissible dialog at completion**
-22. **The system must handle multiple file types being dragged simultaneously**
-23. **The system must package as a single executable with automated GitHub Release zip distribution**
+23. **The system must provide a cross-platform desktop application with "TT3" branding for Tormenta Talk v3**
+24. **The system must accept folder drag-and-drop onto the application icon to initiate processing**
+25. **The system must provide visual feedback during drag-and-drop operations (hover states, drop zones)**
+26. **The system must display file-by-file progress during TTS conversion phase with current file being processed**
+27. **The system must display file-by-file progress during file placement and optional iTunes upload phases**
+28. **The system must provide a UI toggle/checkbox to enable iTunes integration before processing**
+29. **The system must show overall completion status via desktop notification**
+30. **The system must present any conversion or upload failures in a dismissible dialog at completion**
+31. **The system must handle multiple file types being dragged simultaneously**
+32. **The system must package as a single executable with automated GitHub Release zip distribution**
 
 ### Phase 2: Web Application Foundation (Design Requirements)
 
 #### Modular Architecture Requirements
-22. **The system must be designed as a modular monolith with clear internal module boundaries**
-23. **The core text-to-speech engine must be accessible via internal APIs for future web integration**
-24. **The iTunes integration service must be designed as a separate module that can be called remotely**
-25. **The system must maintain a clear separation between content acquisition, processing, and output management**
-26. **The system must support article metadata storage (URL, title, source, collection date) as file-based metadata**
-27. **Web-based article processing must download content, extract article text, and save as local files for processing by existing workflows**
+33. **The system must be designed as a modular monolith with clear internal module boundaries**
+34. **The core text-to-speech engine must be accessible via internal APIs for future web integration**
+35. **The iTunes integration service must be designed as a separate optional module that can be called remotely**
+36. **The system must maintain a clear separation between content acquisition, processing, and output management**
+37. **The system must support article metadata storage (URL, title, source, collection date) as file-based metadata**
+38. **Web-based article processing must download content, extract article text, and save as local files for processing by existing workflows**
+
+#### Web Application Audio Processing (Future)
+39. **For web application deployment, the system must support combining individual audio files into a single large audio file**
+40. **The system must maintain article boundaries and metadata within combined audio files for navigation**
+41. **Web applications must support both file download and optional iTunes integration based on user preferences**
 
 #### Future Web Interface Requirements (Out of Current Scope)
 - URL collection and management system
@@ -182,16 +201,17 @@ The News Audio Converter is a modular application system that converts newspaper
 ## 7. Assumptions
 
 ### Current Phase Assumptions
-- **iTunes Installation:** User has iTunes installed and properly configured (initially macOS, cross-platform iTunes compatibility to be evaluated)
-- **iPhone Sync:** User's iPhone is set up to sync with iTunes playlists
-- **File Access:** System has read/write access to article directory, temporary directories, and iTunes library
+- **iTunes Installation (Optional):** For users who enable iTunes integration, iTunes is installed and properly configured (initially macOS, cross-platform iTunes compatibility to be evaluated)
+- **iPhone Sync (Optional):** For users using iTunes integration, iPhone is set up to sync with iTunes playlists
+- **File Access:** System has read/write access to article directory and can create audio files in the same locations
 - **Text File Quality:** Source text files contain readable content (not corrupted or heavily formatted)
 - **Daily Usage Pattern:** User runs the process manually once per day, typically in the morning
-- **Storage Availability:** Sufficient local storage for temporary files and 2 days of audio content
+- **Storage Availability:** Sufficient local storage for audio files alongside source text files
 - **Cross-Platform Compatibility:** Third-party TTS solution provides consistent quality across platforms
 - **GitHub Access:** Users can access GitHub Releases for application downloads and updates
 - **Manual Operation Preference:** Users prefer manual control over automated scheduling for daily news processing
 - **Error Tolerance:** Users can handle occasional conversion failures and prefer simple error reporting over complex recovery mechanisms
+- **File Organization:** Users prefer audio files to be placed alongside source files by default for simple organization
 
 ### Architecture Assumptions for Future Development
 - **Modular Monolith Scalability:** Internal module boundaries will facilitate future service extraction
@@ -205,14 +225,17 @@ The News Audio Converter is a modular application system that converts newspaper
 
 ### Command-Line Interface
 - Single command execution with clear progress indicators
-- Optional parameters for source directory and output settings
+- Optional parameters for iTunes integration (--itunes or --playlist flag)
+- Optional parameters for file overwrite behavior (--overwrite flag)
 - Verbose logging option for troubleshooting
+- Clear help documentation showing all available options
 - Error messages that clearly indicate failure points and suggested fixes
 
 ### Desktop Application Interface
 - Simple, minimal desktop icon design featuring "TT3" graphical representation for Tormenta Talk v3
 - Visual feedback during drag operations (highlighting, animation, or visual cues)
-- File-by-file progress indication during both TTS conversion and iTunes upload phases
+- File-by-file progress indication during TTS conversion and optional iTunes upload phases
+- Clear iTunes integration toggle/checkbox for user control
 - Desktop notifications for overall completion status
 - Error handling with dismissible dialog showing specific conversion failures at completion
 - Consistent cross-platform design patterns and conventions
@@ -223,9 +246,11 @@ The News Audio Converter is a modular application system that converts newspaper
 - Consistent volume levels across all generated files
 
 ### File Organization
-- Clear naming conventions for generated audio files
-- Organized temporary storage before iTunes import
-- Predictable cleanup behavior for user confidence
+- Clear naming conventions for generated audio files matching source file names
+- Audio files placed directly alongside source text files by default
+- Intelligent filename conflict resolution with numbered suffixes
+- Optional iTunes integration with organized temporary storage and playlist management
+- Predictable behavior for user confidence in file locations
 
 ## 9. Technical Considerations
 
@@ -237,8 +262,8 @@ The News Audio Converter is a modular application system that converts newspaper
   - Configurable chunk processing (default: 500 words, sentence-boundary splitting)
   - Multiple audio concatenation methods (ffmpeg primary, binary AIFF concatenation fallback)
   - Timeout protection and error recovery for reliable long-document processing
-- **iTunes Integration:** ✅ **IMPLEMENTED** - AppleScript automation for playlist creation and audio import
-- **File Processing:** ✅ **IMPLEMENTED** - Cross-platform file operations with content extraction and preprocessing
+- **iTunes Integration:** ✅ **IMPLEMENTED** - Optional AppleScript automation for playlist creation and audio import
+- **File Processing:** ✅ **IMPLEMENTED** - Cross-platform file operations with direct file placement and intelligent conflict resolution
 - **Desktop Application:** Cross-platform framework (Electron or Tauri) for consistent deployment across platforms
 - **Drag-and-Drop:** Cross-platform drag-and-drop APIs for folder acceptance
 - **Modular Monolith Architecture:** Single deployable unit with clear internal module boundaries
@@ -251,12 +276,12 @@ The News Audio Converter is a modular application system that converts newspaper
 - **CPU Usage:** Reasonable CPU utilization that doesn't interfere with other tasks
 
 ### Integration Requirements
-- **iTunes Library:** Must reliably create and manage playlists without corrupting library
-- **File System:** Safe file operations with proper error handling
-- **macOS Integration:** Follow macOS conventions for temporary files, system integration, and desktop application behavior
-- **Desktop Environment:** Seamless integration with macOS Finder and desktop drag-and-drop patterns
+- **iTunes Library (Optional):** When enabled, must reliably create and manage playlists without corrupting library
+- **File System:** Safe file operations with proper error handling and intelligent filename conflict resolution
+- **Cross-Platform Integration:** Consistent behavior across macOS, Windows, and Linux environments
+- **Desktop Environment:** Seamless integration with platform-specific file managers and drag-and-drop patterns
 - **API Readiness:** Internal interfaces designed for future web service exposure
-- **Service Modularity:** Clear separation between content processing, iTunes management, and user interface layers
+- **Service Modularity:** Clear separation between content processing, optional iTunes management, and user interface layers
 
 ### Security Considerations
 - **File Access:** Only access specified directories and iTunes library
@@ -277,11 +302,13 @@ The News Audio Converter is a modular application system that converts newspaper
 ### High Risk Items
 - **Local TTS Library Integration:** ✅ **MITIGATED** - Cross-platform TTS library integration completed with chunking strategy
   - *Solution Implemented:* LocalTTSService with platform-specific engines (macOS say, Windows SAPI, Linux espeak), intelligent text chunking at sentence boundaries, configurable chunk sizes, timeout protection, and multiple audio concatenation methods
-- **Cross-Platform iTunes Integration:** iTunes behavior may vary significantly across platforms
-  - *Mitigation:* Implement platform-specific iTunes integration strategies with comprehensive testing
+- **Cross-Platform iTunes Integration (Optional):** iTunes behavior may vary significantly across platforms when integration is enabled
+  - *Mitigation:* Implement platform-specific iTunes integration strategies with comprehensive testing, make iTunes integration optional
 - **File Format Variations:** Different article sources may have incompatible text formats
   - *Mitigation:* Robust text parsing with fallback to basic processing, design preprocessing pipeline for web content
-- **Temporary File Management:** Improper cleanup could leave large temporary files on user systems
+- **Filename Conflict Management:** Multiple conversions of the same file could create numerous numbered versions
+  - *Mitigation:* Implement intelligent conflict resolution with user option to overwrite existing files
+- **Temporary File Management:** Improper cleanup could leave large temporary files on user systems (when iTunes integration is enabled)
   - *Mitigation:* Implement robust cleanup mechanisms with fail-safes and user notifications
 
 ### Medium Risk Items
@@ -339,7 +366,7 @@ The News Audio Converter is a modular application system that converts newspaper
 
 ---
 
-*This PRD provides the foundation for implementing a reliable, daily-use news audio conversion system that integrates seamlessly with existing article collection workflows and iTunes/iPhone ecosystem. The modular architecture uses local TTS libraries for privacy, offline operation, and reliability, ensuring that the core processing components can evolve from local desktop applications to web-based services while maintaining data privacy and operational independence.*
+*This PRD provides the foundation for implementing a reliable, daily-use news audio conversion system with flexible output options. By default, the system places audio files alongside source text files for simple organization, with optional iTunes integration for users who want playlist management and iPhone sync. The modular architecture uses local TTS libraries for privacy, offline operation, and reliability, ensuring that the core processing components can evolve from local desktop applications to web-based services while maintaining data privacy and operational independence.*
 
 ## Appendix: Web Application Evolution Path
 

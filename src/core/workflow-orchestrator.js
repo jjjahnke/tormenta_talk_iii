@@ -21,6 +21,11 @@ class WorkflowOrchestrator extends EventEmitter {
       retryAttempts: options.retryAttempts || 2,
       retryDelay: options.retryDelay || 1000, // 1 second
 
+      // Output configuration
+      outputMode: options.outputMode || 'direct', // 'direct' (default) or 'temp'
+      enableItunesIntegration: options.enableItunesIntegration || false, // Optional iTunes integration
+      overwriteExisting: options.overwriteExisting || false, // Overwrite existing files
+
       // Progress tracking
       enableProgress: options.enableProgress !== false,
       progressInterval: options.progressInterval || 500, // ms
@@ -83,9 +88,13 @@ class WorkflowOrchestrator extends EventEmitter {
       this.components.audioConverter = new AudioConverter(this.options.audioConverter)
       await this.components.audioConverter.initialize()
 
-      // Initialize iTunes Manager
-      this.components.itunesManager = new ITunesManager(this.options.itunesManager)
-      await this.components.itunesManager.initialize()
+      // Initialize iTunes Manager (optional)
+      if (this.options.enableItunesIntegration) {
+        this.components.itunesManager = new ITunesManager(this.options.itunesManager)
+        await this.components.itunesManager.initialize()
+      } else {
+        this.components.itunesManager = null
+      }
 
       this.initialized = true
       this.emit('workflow:initialized')
@@ -183,41 +192,56 @@ class WorkflowOrchestrator extends EventEmitter {
       this.state.currentStep = 'audio-conversion'
       this.emit('file:step', { filePath, step: 'audio-conversion' })
 
+      const audioOptions = {
+        ...options.audio || {},
+        outputMode: this.options.outputMode,
+        outputDir: path.dirname(filePath), // Save alongside source file
+        overwrite: this.options.overwriteExisting
+      }
+
       const audioResult = await this._executeWithRetry(
         () => this.components.audioConverter.convertToAudio(
           textResult.content,
-          path.basename(filePath),
+          filePath, // Pass full path for direct output
           this.components.ttsService,
-          options.audio || {}
+          audioOptions
         ),
         'audio-conversion'
       )
       fileState.steps.audioConversion = audioResult
 
-      // Step 3: Import to iTunes
-      this.state.currentStep = 'itunes-import'
-      this.emit('file:step', { filePath, step: 'itunes-import' })
+      // Step 3: Import to iTunes (optional)
+      if (this.options.enableItunesIntegration && this.components.itunesManager) {
+        this.state.currentStep = 'itunes-import'
+        this.emit('file:step', { filePath, step: 'itunes-import' })
 
-      const itunesResult = await this._executeWithRetry(
-        () => this.components.itunesManager.importAudioFile(
-          audioResult.audioPath,
-          {
-            title: textResult.metadata?.title || path.basename(filePath, path.extname(filePath)),
-            artist: 'News Audio Converter',
-            album: `News ${new Date().toISOString().split('T')[0]}`,
-            ...options.itunes || {}
-          }
-        ),
-        'itunes-import'
-      )
-      fileState.steps.itunesImport = itunesResult
+        const itunesResult = await this._executeWithRetry(
+          () => this.components.itunesManager.importAudioFile(
+            audioResult.audioPath,
+            {
+              title: textResult.metadata?.title || path.basename(filePath, path.extname(filePath)),
+              artist: 'News Audio Converter',
+              album: `News ${new Date().toISOString().split('T')[0]}`,
+              ...options.itunes || {}
+            }
+          ),
+          'itunes-import'
+        )
+        fileState.steps.itunesImport = itunesResult
+      } else {
+        fileState.steps.itunesImport = { success: true, skipped: true, reason: 'iTunes integration disabled' }
+      }
 
-      // Step 4: Cleanup temporary files
-      this.state.currentStep = 'cleanup'
-      this.emit('file:step', { filePath, step: 'cleanup' })
+      // Step 4: Cleanup temporary files (only if temp mode was used)
+      if (audioResult.outputMode === 'temp') {
+        this.state.currentStep = 'cleanup'
+        this.emit('file:step', { filePath, step: 'cleanup' })
 
-      await this.components.audioConverter.cleanup([audioResult.audioPath])
-      fileState.steps.cleanup = { success: true }
+        await this.components.audioConverter.cleanup([audioResult.audioPath])
+        fileState.steps.cleanup = { success: true }
+      } else {
+        fileState.steps.cleanup = { success: true, skipped: true, reason: 'Direct output mode - no temp files to clean' }
+      }
 
       fileState.success = true
       fileState.endTime = new Date()

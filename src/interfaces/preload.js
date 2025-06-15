@@ -16,6 +16,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
   stopProcessing: () => ipcRenderer.invoke('stop-processing'),
   getStatus: () => ipcRenderer.invoke('get-status'),
 
+  // Settings operations
+  getSettings: () => ipcRenderer.invoke('get-settings'),
+  saveSettings: (settings) => ipcRenderer.invoke('save-settings', settings),
+
   // External operations
   openExternal: (url) => ipcRenderer.invoke('open-external', url),
 

@@ -37,13 +37,15 @@ class TT3CLI {
     // Main process command
     this.program
       .command('process')
-      .description('Process text files to audio and import to iTunes')
+      .description('Process text files to audio with optional iTunes import')
       .argument('<input>', 'Input file or directory path containing .txt/.md files')
       .option('-v, --verbose', 'Enable verbose logging for troubleshooting')
       .option('-c, --concurrency <number>', 'Number of files to process concurrently', '1')
       .option('--continue-on-error', 'Continue processing other files if one fails', true)
       .option('--no-continue-on-error', 'Stop processing if any file fails')
       .option('--retry-attempts <number>', 'Number of retry attempts for failed operations', '2')
+      .option('--itunes', 'Enable iTunes playlist integration (optional)')
+      .option('--overwrite', 'Overwrite existing audio files instead of creating numbered versions')
       .option('--dry-run', 'Preview files that would be processed without actual conversion')
       .action(this.handleProcessCommand.bind(this))
 
@@ -82,7 +84,10 @@ class TT3CLI {
       const orchestratorOptions = {
         concurrency: parseInt(options.concurrency, 10),
         continueOnError: options.continueOnError,
-        retryAttempts: parseInt(options.retryAttempts, 10)
+        retryAttempts: parseInt(options.retryAttempts, 10),
+        enableItunesIntegration: options.itunes || false,
+        overwriteExisting: options.overwrite || false,
+        outputMode: 'direct' // Always use direct output mode for CLI
       }
 
       this.orchestrator = new WorkflowOrchestrator(orchestratorOptions)
@@ -92,7 +97,10 @@ class TT3CLI {
 
       // Initialize the orchestrator
       this.log('Initializing system components...', options.verbose)
-      const initSpinner = ora('Initializing TTS engine, iTunes integration, and file processing...').start()
+      const initMessage = options.itunes
+        ? 'Initializing TTS engine, iTunes integration, and file processing...'
+        : 'Initializing TTS engine and file processing...'
+      const initSpinner = ora(initMessage).start()
 
       try {
         await this.orchestrator.initialize()
@@ -116,7 +124,7 @@ class TT3CLI {
       const result = await this.orchestrator.processFiles(inputPath, orchestratorOptions)
 
       // Display final results
-      this.displayResults(result, options.verbose)
+      this.displayResults(result, options.verbose, options.itunes)
     } catch (error) {
       this.error(`Processing failed: ${error.message}`)
       if (options.verbose) {
@@ -304,7 +312,7 @@ class TT3CLI {
     })
   }
 
-  displayResults (result, verbose) {
+  displayResults (result, verbose, itunesEnabled = false) {
     console.log(chalk.green.bold('\n🎉 Processing Complete!\n'))
 
     // Summary statistics
@@ -352,8 +360,13 @@ class TT3CLI {
     // Next steps
     if (result.summary.successfulFiles > 0) {
       console.log(chalk.blue('\n🎵 Next Steps:'))
-      console.log('  • Open iTunes/Music app to see your "News-YYYY-MM-DD" playlist')
-      console.log('  • Sync your iPhone to get the audio files for offline listening')
+      if (itunesEnabled) {
+        console.log('  • Open iTunes/Music app to see your "News-YYYY-MM-DD" playlist')
+        console.log('  • Sync your iPhone to get the audio files for offline listening')
+      } else {
+        console.log('  • Audio files saved alongside your source text files')
+        console.log('  • Use --itunes flag to enable iTunes playlist integration')
+      }
       console.log('  • Articles are ready for hands-free consumption!')
     }
   }

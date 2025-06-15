@@ -130,9 +130,23 @@ describe('WorkflowOrchestrator', () => {
       expect(mockFileProcessor.initialize).toHaveBeenCalled()
       expect(mockTTSService.initialize).toHaveBeenCalled()
       expect(mockAudioConverter.initialize).toHaveBeenCalled()
-      expect(mockITunesManager.initialize).toHaveBeenCalled()
+      // iTunes Manager should not be initialized by default (enableItunesIntegration: false)
+      expect(mockITunesManager.initialize).not.toHaveBeenCalled()
 
       expect(orchestrator.initialized).toBe(true)
+      expect(result.success).toBe(true)
+    })
+
+    test('should initialize iTunes Manager when enabled', async () => {
+      const itunesOrchestrator = new WorkflowOrchestrator({ enableItunesIntegration: true })
+      const result = await itunesOrchestrator.initialize()
+
+      expect(mockFileProcessor.initialize).toHaveBeenCalled()
+      expect(mockTTSService.initialize).toHaveBeenCalled()
+      expect(mockAudioConverter.initialize).toHaveBeenCalled()
+      expect(mockITunesManager.initialize).toHaveBeenCalled()
+
+      expect(itunesOrchestrator.initialized).toBe(true)
       expect(result.success).toBe(true)
     })
 
@@ -269,7 +283,7 @@ describe('WorkflowOrchestrator', () => {
       await orchestrator.initialize()
     })
 
-    test('should process single file successfully', async () => {
+    test('should process single file successfully without iTunes integration', async () => {
       const filePath = '/path/to/test.txt'
       const eventSpy = jest.fn()
       orchestrator.on('file:completed', eventSpy)
@@ -280,13 +294,50 @@ describe('WorkflowOrchestrator', () => {
       expect(result.path).toBe(filePath)
       expect(result.steps.textExtraction.content).toBe('Sample text content')
       expect(result.steps.audioConversion.audioPath).toBe('/tmp/audio/test.wav')
+      // iTunes import should be skipped by default
+      expect(result.steps.itunesImport.skipped).toBe(true)
+      expect(result.steps.itunesImport.reason).toBe('iTunes integration disabled')
+      // Cleanup should be skipped in direct mode (new default)
+      expect(result.steps.cleanup.skipped).toBe(true)
+      expect(result.steps.cleanup.reason).toBe('Direct output mode - no temp files to clean')
+
+      expect(mockFileProcessor.extractText).toHaveBeenCalledWith(filePath)
+      expect(mockAudioConverter.convertToAudio).toHaveBeenCalled()
+      expect(mockITunesManager.importAudioFile).not.toHaveBeenCalled()
+      expect(mockAudioConverter.cleanup).not.toHaveBeenCalled()
+
+      expect(eventSpy).toHaveBeenCalledWith({
+        filePath,
+        result: expect.objectContaining({ success: true })
+      })
+    })
+
+    test('should process single file successfully with iTunes integration', async () => {
+      // Reset mocks to ensure clean state
+      jest.clearAllMocks()
+      
+      const itunesOrchestrator = new WorkflowOrchestrator({ enableItunesIntegration: true })
+      await itunesOrchestrator.initialize()
+
+      const filePath = '/path/to/test.txt'
+      const eventSpy = jest.fn()
+      itunesOrchestrator.on('file:completed', eventSpy)
+
+      const result = await itunesOrchestrator.processSingleFile(filePath)
+
+      expect(result.success).toBe(true)
+      expect(result.path).toBe(filePath)
+      expect(result.steps.textExtraction.content).toBe('Sample text content')
+      expect(result.steps.audioConversion.audioPath).toBe('/tmp/audio/test.wav')
       expect(result.steps.itunesImport.trackId).toBe('track-123')
-      expect(result.steps.cleanup.success).toBe(true)
+      // Cleanup should be skipped in direct mode (new default)
+      expect(result.steps.cleanup.skipped).toBe(true)
+      expect(result.steps.cleanup.reason).toBe('Direct output mode - no temp files to clean')
 
       expect(mockFileProcessor.extractText).toHaveBeenCalledWith(filePath)
       expect(mockAudioConverter.convertToAudio).toHaveBeenCalled()
       expect(mockITunesManager.importAudioFile).toHaveBeenCalled()
-      expect(mockAudioConverter.cleanup).toHaveBeenCalled()
+      expect(mockAudioConverter.cleanup).not.toHaveBeenCalled()
 
       expect(eventSpy).toHaveBeenCalledWith({
         filePath,

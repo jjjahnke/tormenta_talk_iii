@@ -33,11 +33,14 @@ class AudioConverter {
   }
 
   /**
-   * Convert text content to audio file with temporary file management
+   * Convert text content to audio file with flexible output options
    * @param {string} textContent - Text content to convert
    * @param {string} sourceFilename - Original filename for audio naming
    * @param {Object} ttsService - Initialized TTS service instance
    * @param {Object} options - Override options for this conversion
+   * @param {string} options.outputMode - 'temp' (default) or 'direct'
+   * @param {string} options.outputDir - Directory for direct output (uses source file dir if not specified)
+   * @param {boolean} options.overwrite - Whether to overwrite existing files (default: false)
    * @returns {Promise<{success: boolean, audioPath: string, tempPath: string, metadata: Object}>}
    */
   async convertToAudio (textContent, sourceFilename, ttsService, options = {}) {
@@ -54,38 +57,47 @@ class AudioConverter {
     }
 
     const mergedOptions = { ...this.options, ...options }
-    let tempAudioPath = null
+    const outputMode = mergedOptions.outputMode || 'temp'
+    let audioPath = null
+    let tempPath = null
 
     try {
-      // Generate audio filename based on source
-      const audioFilename = this._generateAudioFilename(sourceFilename, mergedOptions.outputFormat)
-      tempAudioPath = path.join(this.options.tempDir, audioFilename)
+      // Determine output path based on mode
+      if (outputMode === 'direct') {
+        audioPath = await this._generateDirectOutputPath(sourceFilename, mergedOptions)
+      } else {
+        // Generate audio filename based on source
+        const audioFilename = this._generateAudioFilename(sourceFilename, mergedOptions.outputFormat)
+        audioPath = path.join(this.options.tempDir, audioFilename)
+        tempPath = audioPath
+      }
 
       // Track file for cleanup
-      this.activeFiles.add(tempAudioPath)
+      this.activeFiles.add(audioPath)
 
       // Convert text to audio using TTS service
-      const ttsResult = await ttsService.convertTextToAudio(textContent, tempAudioPath, mergedOptions)
+      const ttsResult = await ttsService.convertTextToAudio(textContent, audioPath, mergedOptions)
 
       // Validate the generated audio file
-      await this._validateAudioFile(tempAudioPath)
+      await this._validateAudioFile(audioPath)
 
       // Generate metadata
       const metadata = await this._generateMetadata(sourceFilename, textContent, ttsResult)
 
       return {
         success: true,
-        audioPath: tempAudioPath,
-        tempPath: tempAudioPath, // Same in this case
+        audioPath,
+        tempPath: tempPath || audioPath, // For backward compatibility
         metadata,
         ttsResult,
-        format: mergedOptions.outputFormat
+        format: mergedOptions.outputFormat,
+        outputMode
       }
     } catch (error) {
       // Cleanup on error if enabled
-      if (mergedOptions.cleanupOnError && tempAudioPath) {
-        await this._cleanupFile(tempAudioPath)
-        this.activeFiles.delete(tempAudioPath) // Remove from tracking since we cleaned it up
+      if (mergedOptions.cleanupOnError && audioPath) {
+        await this._cleanupFile(audioPath)
+        this.activeFiles.delete(audioPath) // Remove from tracking since we cleaned it up
       }
       throw new Error(`Audio conversion failed: ${error.message}`)
     }
@@ -202,6 +214,39 @@ class AudioConverter {
     const extension = format.startsWith('.') ? format : `.${format}`
 
     return `${cleanName}-${timestamp}${extension}`
+  }
+
+  /**
+   * Generate direct output path for audio file alongside source file
+   * @param {string} sourceFilename - Original text filename (full path)
+   * @param {Object} options - Options including outputDir, outputFormat, overwrite
+   * @returns {Promise<string>} Generated audio file path
+   */
+  async _generateDirectOutputPath (sourceFilename, options) {
+    const sourceDir = options.outputDir || path.dirname(sourceFilename)
+    const basename = path.basename(sourceFilename, path.extname(sourceFilename))
+    const format = options.outputFormat || 'mp3'
+    const extension = format.startsWith('.') ? format : `.${format}`
+    
+    let audioPath = path.join(sourceDir, `${basename}${extension}`)
+    
+    // Handle filename conflicts with sequential numbering (unless overwrite is enabled)
+    if (!options.overwrite && await fs.pathExists(audioPath)) {
+      let counter = 1
+      let candidatePath
+      
+      do {
+        candidatePath = path.join(sourceDir, `${basename}-${counter}${extension}`)
+        counter++
+      } while (await fs.pathExists(candidatePath))
+      
+      audioPath = candidatePath
+    }
+    
+    // Ensure output directory exists
+    await fs.ensureDir(path.dirname(audioPath))
+    
+    return audioPath
   }
 
   /**

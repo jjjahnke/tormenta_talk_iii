@@ -32,7 +32,15 @@ class TT3Renderer {
       currentFile: document.getElementById('currentFile'),
       fileList: document.getElementById('fileList'),
       errorsSection: document.getElementById('errorsSection'),
-      errorsList: document.getElementById('errorsList')
+      errorsList: document.getElementById('errorsList'),
+      // Settings elements
+      settingsBtn: document.getElementById('settingsBtn'),
+      settingsOverlay: document.getElementById('settingsOverlay'),
+      settingsClose: document.getElementById('settingsClose'),
+      settingsCancel: document.getElementById('settingsCancel'),
+      settingsSave: document.getElementById('settingsSave'),
+      itunesEnabled: document.getElementById('itunesEnabled'),
+      overwriteEnabled: document.getElementById('overwriteEnabled')
     }
   }
 
@@ -44,6 +52,19 @@ class TT3Renderer {
 
     // Drop zone click handler
     this.elements.dropZone.addEventListener('click', () => this.handleSelectFolder())
+
+    // Settings modal handlers
+    this.elements.settingsBtn.addEventListener('click', () => this.openSettings())
+    this.elements.settingsClose.addEventListener('click', () => this.closeSettings())
+    this.elements.settingsCancel.addEventListener('click', () => this.closeSettings())
+    this.elements.settingsSave.addEventListener('click', () => this.saveSettings())
+
+    // Close settings when clicking overlay background
+    this.elements.settingsOverlay.addEventListener('click', (e) => {
+      if (e.target === this.elements.settingsOverlay) {
+        this.closeSettings()
+      }
+    })
   }
 
   setupDragAndDrop () {
@@ -384,6 +405,48 @@ class TT3Renderer {
           }
         }
       }, 5000)
+    }
+  }
+
+  // Settings Management Methods
+  async openSettings () {
+    try {
+      // Load current settings from main process
+      const settings = await window.electronAPI.getSettings()
+      
+      // Update UI with current settings
+      this.elements.itunesEnabled.checked = settings.enableItunesIntegration
+      this.elements.overwriteEnabled.checked = settings.overwriteExisting
+      
+      // Show settings overlay
+      this.elements.settingsOverlay.style.display = 'flex'
+    } catch (error) {
+      console.error('Error loading settings:', error)
+    }
+  }
+
+  closeSettings () {
+    this.elements.settingsOverlay.style.display = 'none'
+  }
+
+  async saveSettings () {
+    try {
+      // Get values from UI
+      const settings = {
+        enableItunesIntegration: this.elements.itunesEnabled.checked,
+        overwriteExisting: this.elements.overwriteEnabled.checked
+      }
+      
+      // Save to main process
+      await window.electronAPI.saveSettings(settings)
+      
+      // Close settings modal
+      this.closeSettings()
+      
+      console.log('Settings saved successfully:', settings)
+    } catch (error) {
+      console.error('Error saving settings:', error)
+      alert('Failed to save settings. Please try again.')
     }
   }
 

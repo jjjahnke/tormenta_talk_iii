@@ -32,6 +32,13 @@ class TT3DesktopApp {
       errors: []
     }
 
+    // Default settings
+    this.settings = {
+      enableItunesIntegration: false,
+      overwriteExisting: false
+    }
+
+    this.loadSettings()
     this.setupElectronHandlers()
     this.setupIPCHandlers()
   }
@@ -218,6 +225,15 @@ class TT3DesktopApp {
       const { shell } = require('electron')
       await shell.openExternal(url)
     })
+
+    // Handle settings management
+    ipcMain.handle('get-settings', () => {
+      return this.getSettings()
+    })
+
+    ipcMain.handle('save-settings', async (event, settings) => {
+      return await this.saveSettings(settings)
+    })
   }
 
   async handleSelectFolder () {
@@ -253,7 +269,10 @@ class TT3DesktopApp {
         this.orchestrator = new WorkflowOrchestrator({
           enableProgress: true,
           continueOnError: true,
-          detailedErrors: true
+          detailedErrors: true,
+          enableItunesIntegration: this.settings.enableItunesIntegration,
+          overwriteExisting: this.settings.overwriteExisting,
+          outputMode: 'direct'
         })
 
         this.setupOrchestratorEvents()
@@ -361,6 +380,41 @@ class TT3DesktopApp {
         icon: this.getAppIcon()
       }).show()
     }
+  }
+
+  // Settings management methods
+  loadSettings () {
+    try {
+      const { app } = require('electron')
+      const settingsPath = path.join(app.getPath('userData'), 'tt3-settings.json')
+      
+      if (fs.existsSync(settingsPath)) {
+        const savedSettings = fs.readJsonSync(settingsPath)
+        this.settings = { ...this.settings, ...savedSettings }
+      }
+    } catch (error) {
+      console.warn('Failed to load settings:', error.message)
+      // Use default settings if loading fails
+    }
+  }
+
+  async saveSettings (newSettings) {
+    try {
+      const { app } = require('electron')
+      const settingsPath = path.join(app.getPath('userData'), 'tt3-settings.json')
+      
+      this.settings = { ...this.settings, ...newSettings }
+      await fs.writeJson(settingsPath, this.settings, { spaces: 2 })
+      
+      return { success: true }
+    } catch (error) {
+      console.error('Failed to save settings:', error.message)
+      return { success: false, error: error.message }
+    }
+  }
+
+  getSettings () {
+    return this.settings
   }
 
   showAboutDialog () {
