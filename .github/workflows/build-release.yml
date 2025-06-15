@@ -8,6 +8,12 @@ on:
     branches: [ main, master ]
   workflow_dispatch:
 
+# Permissions for GITHUB_TOKEN
+permissions:
+  contents: write      # Required to create releases and upload assets
+  packages: read       # Required to read packages if needed
+  actions: read        # Required to read action artifacts
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -81,9 +87,16 @@ jobs:
     
     - name: Build desktop application
       run: npm run build:desktop
-    
+      env:
+        CSC_IDENTITY_AUTO_DISCOVERY: false
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        DEBUG: electron-builder
+
     - name: Package applications
       run: npm run package:all
+      env:
+        CSC_IDENTITY_AUTO_DISCOVERY: false
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     
     - name: Create distribution artifacts
       shell: bash
